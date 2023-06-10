@@ -19,3 +19,6 @@ env/
 *.pyc
 *.swp
 *~
+
+# Debug files
+parser.out
