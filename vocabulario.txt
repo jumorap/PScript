@@ -1,0 +1,203 @@
+1. Vocabulario Completo
+
+Alfabeto:
+
+Sigma = {A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z
+	 a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z
+	 1,2,3,4,5,6,7,8,9,0,+,-,*,/,^,<,>,=,[,],(,),{,},.,:,;,}
+
+
+
+2. Categorias Léxicas (sujeto a cambios)
+
+Convenciones:
+
+	def: definición comprensiva e esa categoría léxica.
+	ej: significa ejemplo comprensivo de esa categoría léxica.
+	ejenL: significa ejemplo en nuestro lenguaje de programación.
+	adInfo: información adicional que debe almacenar esa categoría léxica, la adInfo se almacena en funciones, para ver un ejemplo ver la 			categoría lexica Cadena
+	
+
+-----------------
+palabras reservadas:
+. fun
+. multicotomize def: funcion reservada para multicotomizar
+. cat
+. if
+. else
+. while
+. model
+. set
+. with
+. return
+-----------------
+
+-Grupo 
+	ejenL: () 						def: los parentesis para aisalar operaciones, adentro hay cualquier categoría lexica, en especial 										Operacion Aritmetica (revisar si todas)
+
+-Bloque
+	ejenL: {} 						def: las llaves para aislar bloques de codigo, adentro hay cualquier otra categoría léxica
+
+-Numero
+	ejenL: 4567.15 				def: todos los numeros Reales en todos sus formatos
+
+-Variable
+	ejenL: persona12_01_a 			def: todas las variables que almacenan categorías lexicas de tipo Numero, Arreglo, Matriz, Modelo
+
+-Arreglo
+	ejenL: [1,-5,0.2,-0.5,0,5,45] 	def: arreglo que solo almacena categorías léxicas de tipo Numero, estas ultimas
+-Matriz
+	ejenL: [[1],[1,-2,0.33,4],[44.12,0.1]]     def: matriz que almacena categorías léxicas de tipo Arreglo ej:
+						   las matrices de 3 dimensiones satisfacen el modelo de doble via pag 5 del documento de teoría (revisar mejor)
+					      	   para hacer matrices (revisar si otras mas se necesitan integrar)
+
+
+
+-Operación Aritmetica
+	ejenL: 42.12 * 56.12 + 123  	def: todas las ops matematicas con +,-,*,/,^ solo se pueden operar Cat lexicas de tipo Numero
+
+
+**-Comparación
+	ejenL: 400.12 < 458.45			def: comparaciones entre categorías lexicas de tipo Numero o Viariable
+									adInfo: debe reconocer si la expresión es verdadera o falsa
+	ejenL: 468 == 468 && 798 >= 45
+	ejenL: a == b || a < c 
+
+
+**-Funcion
+	ejenL: fun ordenar(){}			def: forma en la que se declaran las funciones, los parentesis capturan parametros de forma opcional, 									las llaves son la categoría lexica de tipo Bloque
+	ejenL: fun sumar(a,b){
+			return a+b
+		   }
+
+**-Llamada a funcion
+	ejenL: ordenar()				def: llamada a las funciones
+	ejenL: resultado = sumar(45,12)
+
+
+-Asignación
+	ejenL: person1 = 4.15 			def: asignación de valor a una variable, se le puede asignar Numero, Arreglo, Categoría, 												Cadena,Alfabeto de categorías, revisar si otras mas..
+	ejenL: Sigma = [a,e,u] 		ej: asignación de alfabeto de categorías
+
+
+-Control
+	ejenL: if(){}					def: estructura de control else/if, en los paretesis van categorias lexicas de tipo comparación, las 									llaves con categorías lexicas de tipo Bloque
+
+	ejenL: if(a == b){}else{}
+
+	ejenL: if(45 < 10){}else if(45 < 20){}
+
+
+
+-Iteración
+	ejenL: while(){}				def: estrucutura de iteración en los paretesis van categorias lexicas de tipo comparación, las 											llaves con categorías lexicas de tipo Bloque
+
+	ejenL: while(i < 10){}
+
+
+
+
+
+/*las siguientes categorías léxicas resuleven las operaciones del documento de la teoría*/
+
+
+
+--Simbolo
+	ejenL: a 						def: es una sola letra minuscula que representa un simbolo, se usan en los alfabetos de categorías
+
+--Alfabeto de categorias 
+	ejenL: [a,b,c,d]				def: es similar a un arreglo pero solo se aceptan letras minusculas en representación de los simbolos 									de un alfabeto de categorías, NO se puede aceptar matrices de simbolos como por ejemplo [a,[b,c],d,e]
+
+
+--Cadena
+	ejenL: "aabbbbccdd"				def: cadena de simbolos que pertenence a un mismo alfabeto de categorías
+									adInfo: debe reconocer cuantas rachas tiene una cadena, en este ejemplo hay 4
+
+--Acceder a la adInfo de una variable, la adInfo se almacena en funciones
+	ejenL: cadena1.racha()		ej: esta sentencia me retorna el numero de rachas de una cadena en formato Numero
+
+
+
+--Categoria (revisar)
+	ejenL:  cat X_1 = r<0  				ej: la categoría X es igual a los reales negativos
+	
+	ejenL:  cat X_2 = i>0  				ej: la categoría X es igual a los integers positivos
+
+	ejenL:  cat X_3 = (i>0 && i*2n) 		ej: la categoría X es igual a los integers positivos que son pares
+	
+	ejenL:  cat X_4 = (i<0 && i*(2n+1))	ej: la categoría X es igual a los integers negativos que son impares
+
+
+--Conjunto de Categorías
+	ejenL: set X = r with {				
+				cat X_1 = r<0,
+				cat X_2 = r>0
+			}
+
+										ej: se declara el conjunto de categorías X con los reales r, con las siguientes 2 categorías: X_1 que son los reales negativos y X_2 que son los reales positivos.
+
+	ejenL: set Y = i with {				
+				cat X_1 = (i>0 && i*2n),
+				cat X_2 = (i>0 && i*(2n+1))
+			}
+										ej: se declara el conjunto de categorías Y con los enteros i, con las siguientes 2 categorías: Y_1 que son los enteros positivos pares y Y_2 que son los enteros positivos impares
+
+										adInfo: debe almacenar todos los numeros que pertenecen a cada categoría y al set completo
+										adInfo: debe comprobarse semanticamente que la unión de las categorías X_1 U X_2 U X_i U ... U X_n = X
+
+
+
+--Funcion multicotomizar (revisar si requiere una función especifica o gral, no necesita alceptar un conjunto de categorías)
+	ejenL: multicotomize(X)				def: multicotomiza un Conjunto de Categorías en una Cadena, debe retornar la cadena transformada, 										se debe enviar por parametro siempre un Conjunto de Categorías
+
+	ejenL: cadena1 = multicotomize(X)		adInfo: al generar una cadena con la  función multicotomize(), esta debe contener las siguiente información: 
+							1) cadena1.numberOfSteaks()		def: total de rachas presentes, retorna Numero (implementa la funcion contadora pag 4 texto teoría)
+							2) cadena1.steakLength(j)	def: retorna el numero de simbolos de la racha en la posición j-esima, j es Numero, j = 1 hace referencia a la priera racha, retorna Numero
+							3) cadena1.alphabet()	def: retorna el alfabeto de categorías, retorna categoría lexica de tipo Alfabeto de categorias 
+
+
+--Función Modelo de dos vias (para clasificación de dos vias, pagina 4 texto reoría)
+	ejenL: model(a,t,b,M)		def: modelo es una matriz que contiene la información de los parametros enviados a la función model()
+						parametros:
+							a, es un Numero que indifica el efecto del modelo
+							t, es un Arreglo que indica los efectos de los tratamiendos (columnas)
+							b, es un Arreglo que indica los efectos de los bloques (filas)
+							M, es una Matriz llamada datos del modelo. debe tener #columnas = logitud de t y #filas = logitud de b (solo matrices cuadradas)
+
+	ejenL: modeloZ = model(4.7,[5.4,-9.2],[-7.4,1.2,0.58],[[[15.9,-4.0,66.1],[-6.1,3.9],[4.2,-1.3,12.4,5.8]],[[23.8],[4.5,3.6,-0.5],[2.2,-5.6]]])
+
+
+							adInfo: al generar un modelo con la función model(), este debe contener la siguiente información:
+							1) modeloZ.operationNum(.,.)	def: retorna Numero total datos del modelo, . es un Symbolo
+							2) modeloZ.operationNum(i,.)	def: retorna Numero total datos del bloque i, i es Numero, . es un Symbolo
+							3) modeloZ.operationNum(.,j)	def: retorna Numero total datos del tratamiento j, j es Numero, . es un Symbolo
+							4) modeloZ.operationSet(.,.)	def: retorna Arreglo con todos los datos del modelo, . es un Symbolo
+							5) modeloZ.operationSet(i,.)	def: retorna Arreglo con todos los datos del bloque i, i es Numero, . es un Symbolo
+							6) modeloZ.operationSet(.,j)	def: retorna Arreglo con todos los datos del tratamiento j, j es Numero, . es un Symbolo
+
+
+--Funcion transformar modelo de dos vias a modelo de rachas
+	ejenL: model(a,t,b,M).toSteakModel()			def: toSteakModel() es una funcion que transforma un modelo en un modelo de rachas usando el algoritmo 1-1 pag 6 del texto teoría, retorna una matriz
+
+	ejenL: modeloZdeRachas = model(a,t,b,M).toSteakModel()	
+
+								adInfo: al generar un modelo de rachas, este debe contener la siguiente información:
+								
+								1) modeloZdeRachas.operationNum(i,j,.)	def: retorna Numero total de rachas en la celda (i,j)
+								... completar deacuerdo a la pag 7 del texto teoria
+
+
+
+
+
+
+
+
+Algoritmo de multicotomización
+
+
+para cada X(i,.) entoces ordenarlos -> Ordenar(menor a mayor)
+
+
+Aplicar F(X(i,.)) recordar que la F es multicotomizar()
+

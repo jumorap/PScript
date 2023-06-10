@@ -1,0 +1,21 @@
+# PyCharm
+.idea/
+# VSCode
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+
+# Miscellaneous
+.DS_Store
+*.log
+*.pot
+*.pyc
+*.swp
+*~

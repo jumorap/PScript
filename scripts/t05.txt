@@ -1,0 +1,3 @@
+a = [6,10,2,3,4,5];
+plot(a, esta_es_la_grafica);
+print(a * 100);

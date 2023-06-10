@@ -1,0 +1,38 @@
+alpha = 4.7;
+blocks = [5.4, -9.2];
+treatments = [-7.4, 1.2, 0.58];
+m_datos = [[[15.9,-4.0,66.1],[-6.1,3.9],[4.2,-1.3,12.4,5.8]],[[23.8],[4.5,3.6,-0.5] ,[2.2,-5.6]]];
+
+modelo1 = model(alpha , blocks, treatments, m_datos);
+streak_model = modelo1.toStreakModel();
+PI = 3.141597;
+
+function f1(streak_model, alpha, blocks, treatments, return){
+    x1 = alpha^0.33 / sin(len(treatments));
+    i = 0;
+    j = 0;
+    p_result = 1;
+    s_result = 0;
+    while(i < len(blocks)){
+        while(j < len(treatments)){
+            op1 = 28*PI;
+            frac1 = streak_model.SteakOperationAvrg(i,j,.)^blocks[0] - sin(streak_model.steakOperationSum(.,.,.));
+            frac2 = treatments[j]*streak_model.steakOperationSum(i,.,.)^0.67 - blocks[i]*streak_model.steakOperationSum(.,i,.)^8;
+            r1 = op1 * frac1 / frac2;
+            p_result = p_result *r1; 
+            j = j + 1;
+        };
+        s_result = s_result + p_result;
+        i = i + 1;
+    };
+    x2 = s_result;
+    return = x1 + x2;
+};
+
+return = 0;
+call f1(streak_model, alpha, blocks, treatments, return);
+printm(Solucion);
+print(return);
+
+
+
