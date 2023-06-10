@@ -1,7 +1,7 @@
 import ply.lex as lex
 import ply.yacc as yacc
 import numpy as np
-import alghtms as alg
+import algorithms_py.alghtms as alg
 import sys
 
 
@@ -34,7 +34,7 @@ reserved = {
     'plot': 'PLOT',
 }
 
-# Create a list to hold all of the token names
+# Create a list to hold all the token names
 tokens = [
     'INT',
     'FLOAT',
