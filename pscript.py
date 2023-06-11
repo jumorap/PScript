@@ -4,7 +4,6 @@ import numpy as np
 import algorithms_py.alghtms as alg
 import sys
 
-
 reserved = {
     'if': 'IF',
     'else': 'ELSE',
@@ -420,7 +419,12 @@ def p_expression_var(p):
     """
     expression : NAME
     """
-    p[0] = ('var', p[1])
+    if p[1] == 'rand':
+        # If the user wants a random number, generate one.
+        # Is necessary put it in "expression" because the parser check 'rand' as a NAME
+        p[0] = np.random.rand()
+    else:
+        p[0] = ('var', p[1])
 
 
 def p_error(p):
@@ -622,7 +626,7 @@ def run(p):
                 run(p[2])
         elif p[0] == 'var':
             if p[1] not in env:
-                return 'Undeclared variable found!' + p[1]
+                return 'Undeclared variable found! ' + p[1]
             else:
                 return env[p[1]]
     else:
