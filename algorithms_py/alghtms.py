@@ -345,7 +345,6 @@ class Chain:
 
 
 def showPlot(values, plot_name):
-    print("oosososososo")
     if type(values) != list:
         print("Error de creación: El primer parámetro debe ser un arreglo de flotantes.")
 
@@ -354,4 +353,4 @@ def showPlot(values, plot_name):
     plt.plot(values)
     plt.title(plot_name)
     plt.draw()
-    plt.savefig(f"{plot_name}.png")
+    plt.savefig(f"results/plot/{plot_name}.png")

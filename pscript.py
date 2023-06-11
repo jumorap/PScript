@@ -60,6 +60,7 @@ tokens = [
     'EQ',
     'SEMICOLON',
     'DOT',
+    'STRING',
 ]
 
 tokens = tokens + list(reserved.values())
@@ -125,6 +126,14 @@ def t_NAME(t):
         t.type = reserved[t.value]
     else:
         t.type = 'NAME'
+    return t
+
+
+# A string is a sequence of characters surrounded by double quotes.
+# We remove the quotes from the string before returning it.
+def t_STRING(t):
+    r"""\".*\""""
+    t.value = t.value[1:-1]  # Remove the quotes from the string
     return t
 
 
@@ -234,11 +243,11 @@ def p_line(p):
     p[0] = p[1]
 
 
-def p_primt_message(p):
+def p_printm_message(p):
     """
-    function_print : PRINTM LPAREN NAME RPAREN
+    function_print : PRINTM LPAREN string RPAREN
     """
-    p[0] = ("printm", p[3])
+    p[0] = ("printm", p[3][1])
 
 
 def p_plot(p):
@@ -325,6 +334,7 @@ def p_string(p):
     string : NAME
            | DOT
            | INT
+           | STRING
            | empty
     """
     if p[1] is None:
@@ -565,7 +575,7 @@ def run(p):
                 return
             return env[p[1]].numberOfSteaksUntilIndex(p[2][0])
         elif p[0] == 'printm':
-            print(">>", p[1])
+            print(p[1])
         elif p[0] == 'plot':
             if type(p[1]) == "str" and p[1] not in env:
                 print(f'Error: object {p[1]} is not defined')

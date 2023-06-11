@@ -22,3 +22,4 @@ env/
 
 # Debug files
 parser.out
+parsetab.py
