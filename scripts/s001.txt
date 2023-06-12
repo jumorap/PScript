@@ -1,5 +1,5 @@
-a = rand;
-b = [rand, rand, rand, rand, rand, rand, rand, rand, rand, rand];
+a = RandMT;
+b = [RandMT, RandMT, RandMT, RandMT, RandMT, RandMT, RandMT, RandMT, RandMT, RandMT];
 printm(a);
 print(a);
 printm(b);
