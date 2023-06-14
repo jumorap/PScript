@@ -1,4 +1,4 @@
-a = [6,10,2,3,4,5];
+a = [6,10,2,3,4,5] * 100;
 plot(a, esta_es_la_grafica);
 printm("a * 100");
 print(a * 100);

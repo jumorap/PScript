@@ -12,7 +12,7 @@ modelo1 = model(alpha, blocks, treatments, m_datos);
 
 
 
-function f1(alpha, return){
+fun f1(alpha, return){
     return = alpha^5 * sin(85);
 };
 

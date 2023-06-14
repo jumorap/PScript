@@ -7,7 +7,7 @@ modelo1 = model(alpha , blocks, treatments, m_datos);
 streak_model = modelo1.toStreakModel();
 PI = 3.141597;
 
-function f1(streak_model, alpha, blocks, treatments, return){
+fun f1(streak_model, alpha, blocks, treatments, return){
     x1 = alpha^0.33 / sin(len(treatments));
     i = 0;
     j = 0;

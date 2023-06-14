@@ -1,0 +1,9 @@
+a = PoissonRand(1000);
+plotHist(a, Distribucion_Poisson);
+a =asjkhdjk;
+a = NormalRand(1000);
+plotHist(a, Distribucion_Normal);
+a = GeoRand(1000);
+plotHist(a, Distribucion_Geometrica);
+a = ExpoRand(1000);
+plotHist(a, Distribucion_Exponencial);
