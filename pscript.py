@@ -437,7 +437,11 @@ def p_expression_var(p):
                | NAME DOT NAME DOT NAME
     """
     # Receives a = ExpoRand(5); or a = ExpoRand; or ExpoRand.a.values;
-    if p[1] == 'ExpoRand' or p[1] == 'GeoRand' or p[1] == 'NormalRand' or p[1] == 'PoissonRand' or p[1] == 'UnifRand':
+    if p[1] == 'ExpoRand' \
+            or p[1] == 'GeoRand' \
+            or p[1] == 'NormalRand' \
+            or p[1] == 'PoissonRand' \
+            or p[1] == 'UniformRand':
         if len(p) > 5:
             if p[5] == 'values':
                 p[0] = env_history_rand[p[3]]
@@ -473,61 +477,89 @@ env_rand = {}
 env_history_rand = {}
 
 
+# Operators logic:
+
+
+def left_right(p):
+    left = run(p[1])
+    right = run(p[2])
+    if type(left) == list:
+        left = np.array(left)
+    if type(right) == list:
+        right = np.array(right)
+
+    return left, right
+
+
+# Probabilistic distributions:
+
+
+def get_default_value(env_key, default_value, error_message=None, warning_message=None):
+    value = env.get(env_key, default_value)
+    if value != default_value and error_message is not None:
+        print(
+            Fore.RED + f"Error: {error_message}. Defaulting to {value}. Replace it using "
+                       f"{env_key}=<{type(value).__name__}>;" + Style.RESET_ALL)
+        value = default_value
+        print(Fore.YELLOW + f"Warning: The default value {value} will be used in the meantime." + Style.RESET_ALL)
+    if env_key not in env and warning_message is not None:
+        print(
+            Fore.YELLOW + f"Warning: {warning_message} Defaulting to {value}. Replace it using "
+                          f"{env_key}=<{type(value).__name__}>;" + Style.RESET_ALL)
+    return value
+
+
 def default_seed():
-    """
-    Check if the user has set a seed value. If not, default to 1.
-    """
-    seed = env.get('SEED', 1)
-    if 'SEED' not in env:
-        print(Fore.YELLOW + f"Warning: SEED not set. Defaulting to {seed}. Replace it using "
-                            f"SEED=<int>;" + Style.RESET_ALL)
-    return seed
+    v_default = 1
+    return get_default_value('SEED', v_default, "SEED not set.", f"SEED not set.")
 
 
 def default_success():
-    """
-    Check if the user has set a success value. If not, default to 1.
-    """
-    success = env.get('SUCCESS', 0.5)
-    if success > 1 or success < 0:
-        print(Fore.RED + f"Error: SUCCESS must be between 0 and 1. Defaulting to {success}. "
-                         f"Replace it using SUCCESS=<float>;" + Style.RESET_ALL)
-        success = 0.5
-        print(Fore.YELLOW + f"Warning: The default value {success} will be used in the meantime." + Style.RESET_ALL)
-    if 'SUCCESS' not in env:
-        print(Fore.YELLOW + f"Warning: SUCCESS not set. Defaulting to {success}. Replace it using a value "
-                            f"between 0 and 1. SUCCESS=<float>;" + Style.RESET_ALL)
-    return success
+    v_default = 0.5
+    return get_default_value('SUCCESS', v_default, "SUCCESS must be between 0 and 1.",
+                             f"SUCCESS not set. Must be a value between 0 and 1.")
 
 
 def default_mu():
-    """
-    Check if the user has set a mu value. If not, default to 5.
-    """
-    mu = env.get('MU', 5)
-    if 'MU' not in env:
-        print(Fore.YELLOW + f"Warning: MU not set. Defaulting to {mu}. Replace it using MU=<float>/<int>;" + Style.RESET_ALL)
-    return mu
+    v_default = 5
+    return get_default_value('MU', v_default, "MU not set.", f"MU not set.")
 
 
 def default_sigma():
-    """
-    Check if the user has set a sigma value. If not, default to 1.
-    """
-    sigma = env.get('SIGMA', 1)
-    if 'SIGMA' not in env:
-        print(Fore.YELLOW + f"Warning: SIGMA not set. Defaulting to {sigma}. Replace it using SIGMA=<int>;" + Style.RESET_ALL)
-    return sigma
+    v_default = 1
+    return get_default_value('SIGMA', v_default, "SIGMA not set.", f"SIGMA not set.")
 
 
 def default_lambda():
-    """
-    Check if the user has set a lambda value. If not, default to 1.
-    """
-    lam = env.get('LAMBDA', 80)
-    if 'LAMBDA' not in env:
-        print(Fore.YELLOW + f"Warning: LAMBDA not set. Defaulting to {lam}. Replace it using LAMBDA=<float>;" + Style.RESET_ALL)
-    return lam
+    v_default = 80
+    return get_default_value('LAMBDA', v_default, "LAMBDA not set.", f"LAMBDA not set.")
+
+
+def default_lim_sup():
+    v_default = 100
+    return get_default_value('LIM_SUP', v_default, "LIM_INF must be smaller than LIM_SUP.", f"LIM_SUP not set.")
+
+
+def default_lim_inf():
+    v_default = 0
+    return get_default_value('LIM_INF', v_default, "LIM_INF must be smaller than LIM_SUP.", f"LIM_INF not set.")
+
+
+list_distributions = {
+    'ExpoRand': lambda: (lcg_rand.exponential_distribution_list, [default_lambda()]),
+    'GeoRand': lambda: (lcg_rand.geometric_distribution_list, [default_success()]),
+    'NormalRand': lambda: (lcg_rand.normal_distribution_list, [default_mu(), default_sigma()]),
+    'PoissonRand': lambda: (lcg_rand.poisson_distribution_list, [default_lambda()]),
+    'UniformRand': lambda: (lcg_rand.uniform_distribution_list, [default_lim_inf(), default_lim_sup()])
+}
+
+distributions = {
+    'ExpoRand': lambda: (lcg_rand.exponential_distribution, [default_lambda()]),
+    'GeoRand': lambda: (lcg_rand.geometric_distribution, [default_success()]),
+    'NormalRand': lambda: (lcg_rand.normal_distribution, [default_mu(), default_sigma()]),
+    'PoissonRand': lambda: (lcg_rand.poisson_distribution, [default_lambda()]),
+    'UniformRand': lambda: (lcg_rand.uniform_distribution, [default_lim_inf(), default_lim_sup()])
+}
 
 
 def run(p):
@@ -540,36 +572,16 @@ def run(p):
     global env, env_rand, env_history_rand
     if type(p) == tuple:
         if p[0] == '+':
-            left = run(p[1])
-            right = run(p[2])
-            if type(left) == list:
-                left = np.array(left)
-            if type(right) == list:
-                right = np.array(right)
+            left, right = left_right(p)
             return left + right
         elif p[0] == '-':
-            left = run(p[1])
-            right = run(p[2])
-            if type(left) == list:
-                left = np.array(left)
-            if type(right) == list:
-                right = np.array(right)
+            left, right = left_right(p)
             return left - right
         elif p[0] == '*':
-            left = run(p[1])
-            right = run(p[2])
-            if type(left) == list:
-                left = np.array(left)
-            if type(right) == list:
-                right = np.array(right)
+            left, right = left_right(p)
             return left * right
         elif p[0] == '/':
-            left = run(p[1])
-            right = run(p[2])
-            if type(left) == list:
-                left = np.array(left)
-            if type(right) == list:
-                right = np.array(right)
+            left, right = left_right(p)
             return left / right
         elif p[0] == 'sin':
             return np.sin(run(p[1]))
@@ -618,36 +630,14 @@ def run(p):
 
         elif p[0] == 'rand':
             seed = default_seed()
-            if p[1] == 'ExpoRand':
-                lamda = default_lambda()
-                return lcg_rand.exponential_distribution(seed, lamda)
-            elif p[1] == 'GeoRand':
-                success = default_success()
-                return lcg_rand.geometric_distribution(seed, success)
-            elif p[1] == 'NormalRand':
-                mu = default_mu()
-                sigma = default_sigma()
-                return lcg_rand.normal_distribution(seed, mu, sigma)
-            elif p[1] == 'PoissonRand':
-                lamda = default_lambda()
-                return lcg_rand.poisson_distribution(seed, lamda)
-            # BEFORE: return np.random.rand()  # Return a random number between 0 and 1
+            if p[1] in distributions:
+                distribution_func, params = distributions[p[1]]()
+                return distribution_func(seed, *params)
         elif p[0] == 'randList':
             seed = default_seed()
-            if p[1] == 'ExpoRand':
-                lamda = default_lambda()
-                return lcg_rand.exponential_distribution_list(seed, lamda, p[2])
-            elif p[1] == 'GeoRand':
-                success = default_success()
-                return lcg_rand.geometric_distribution_list(seed, success, p[2])
-            elif p[1] == 'NormalRand':
-                mu = default_mu()
-                sigma = default_sigma()
-                return lcg_rand.normal_distribution_list(seed, mu, sigma, p[2])
-            elif p[1] == 'PoissonRand':
-                lamda = default_lambda()
-                return lcg_rand.poisson_distribution_list(seed, lamda, p[2])
-            # BEFORE: return np.random.rand(p[2]).tolist()  # Return a random list of size p[2] as a python list
+            if p[1] in list_distributions:
+                distribution_func, params = list_distributions[p[1]]()
+                return distribution_func(seed, *params, p[2])
 
         elif p[0] == 'print':
             print(run(p[1]))

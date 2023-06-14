@@ -76,6 +76,12 @@ def poisson_distribution(seed, lambda_value):
     return k - 1
 
 
+def uniform_distribution(seed, a, b):
+    u = lcgrand(seed)
+    x = a + (b - a) * u
+    return x
+
+
 def exponential_distribution_list(num, lamda, n):
     return [exponential_distribution(num, lamda) for _ in range(n)]
 
@@ -90,3 +96,7 @@ def normal_distribution_list(seed, mu, sigma, n):
 
 def poisson_distribution_list(seed, lambda_value, n):
     return [poisson_distribution(seed, lambda_value) for _ in range(n)]
+
+
+def uniform_distribution_list(seed, a, b, n):
+    return [uniform_distribution(seed, a, b) for _ in range(n)]
