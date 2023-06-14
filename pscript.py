@@ -434,21 +434,21 @@ def p_expression_var(p):
     """
     expression : NAME
                | NAME LPAREN expression RPAREN
-               | NAME DOT NAME DOT NAME
+               | NAME DOT NAME
     """
-    # Receives a = ExpoRand(5); or a = ExpoRand; or ExpoRand.a.values;
+    # Receives a = ExpoRand(5); or a = ExpoRand;
     if p[1] == 'ExpoRand' \
             or p[1] == 'GeoRand' \
             or p[1] == 'NormalRand' \
             or p[1] == 'PoissonRand' \
             or p[1] == 'UniformRand':
-        if len(p) > 5:
-            if p[5] == 'values':
-                p[0] = env_history_rand[p[3]]
-        elif len(p) > 4:
+        if len(p) > 4:
             p[0] = ('randList', p[1], p[3])
         else:
             p[0] = ('rand', p[1])
+    # Receives a.values
+    elif len(p) > 2:
+        p[0] = env_history_rand[p[1]] if p[3] == 'values' else ('var', p[1])
     else:
         p[0] = ('var', p[1])
 
@@ -494,12 +494,16 @@ def left_right(p):
 # Probabilistic distributions:
 
 
+global_lim_sup = env.get('LIM_SUP', 100)
+global_lim_inf = env.get('LIM_INF', 0)
+global_success = env.get('SUCCESS', 0.5)
+
+
 def get_default_value(env_key, default_value, error_message=None, warning_message=None, condition=False):
     value = env.get(env_key, default_value)
     if condition:
-        print(
-            Fore.RED + f"Error: {error_message} Defaulting to {value}. Replace it using "
-                       f"{env_key}=<{type(value).__name__}>;" + Style.RESET_ALL)
+        print(Fore.RED + f"Error: {error_message} Defaulting to {value}. Replace it using "
+                         f"{env_key}=<{type(value).__name__}>;" + Style.RESET_ALL)
         value = default_value
         print(Fore.YELLOW + f"Warning: The default value {value} will be used in the meantime." + Style.RESET_ALL)
     if env_key not in env and warning_message is not None:
@@ -518,7 +522,7 @@ def default_success():
     v_default = 0.5
     return get_default_value('SUCCESS', v_default, "SUCCESS must be between 0 and 1.",
                              f"SUCCESS not set. Must be a value between 0 and 1.",
-                             condition=(env['SUCCESS'] < 0 or env['SUCCESS'] > 1))
+                             condition=(global_success < 0 or global_success > 1))
 
 
 def default_mu():
@@ -539,13 +543,13 @@ def default_lambda():
 def default_lim_sup():
     v_default = 100
     return get_default_value('LIM_SUP', v_default, "LIM_INF must be smaller than LIM_SUP.", f"LIM_SUP not set.",
-                             condition=(env['LIM_INF'] > env['LIM_SUP']))
+                             condition=(global_lim_inf > global_lim_sup))
 
 
 def default_lim_inf():
     v_default = 0
     return get_default_value('LIM_INF', v_default, "LIM_INF must be smaller than LIM_SUP.", f"LIM_INF not set.",
-                             condition=(env['LIM_INF'] > env['LIM_SUP']))
+                             condition=(global_lim_inf > global_lim_sup))
 
 
 list_distributions = {
