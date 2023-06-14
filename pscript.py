@@ -1,10 +1,14 @@
 import ply.lex as lex
 import ply.yacc as yacc
+from colorama import init, Fore, Style
 import numpy as np
 import sys
 
 import algorithms_py.alghtms as alg
+import algorithms_py.rand as lcg_rand
 import execution
+
+init()
 
 reserved = {
     'if': 'IF',
@@ -26,13 +30,14 @@ reserved = {
     'or': 'OR',
     'true': 'TRUE',
     'false': 'FALSE',
-    'function': 'FUNCTION',
+    'fun': 'FUN',
     'call': 'CALL',
     'len': 'LEN',
     'model': 'MODEL',
     'chain': 'CHAIN',
     'printm': 'PRINTM',
     'plot': 'PLOT',
+    'plotHist': 'PLOTHIST',
 }
 
 # Create a list to hold all the token names
@@ -187,7 +192,7 @@ def p_if_statement(p):
 
 def p_function_declaration(p):
     """
-    function_declaration : FUNCTION  NAME LPAREN function_parameters RPAREN LBRACE block RBRACE
+    function_declaration : FUN NAME LPAREN function_parameters RPAREN LBRACE block RBRACE
     """
     p[0] = ("function_declaration", p[2], p[4], p[7])
 
@@ -256,6 +261,13 @@ def p_plot(p):
     function_plot : PLOT LPAREN expression COMMA NAME RPAREN
     """
     p[0] = ("plot", p[3], p[5])
+
+
+def p_plot_hist(p):
+    """
+    function_plot : PLOTHIST LPAREN expression COMMA NAME RPAREN
+    """
+    p[0] = ("plotHist", p[3], p[5])
 
 
 def p_function_print(p):
@@ -374,7 +386,6 @@ def p_expression_function(p):
                 | FLOOR LPAREN expression RPAREN
                 | ROUND LPAREN expression RPAREN
                 | CEIL LPAREN expression RPAREN
-
     """
     p[0] = (p[1], p[3])
 
@@ -422,11 +433,18 @@ def p_expression_bool(p):
 def p_expression_var(p):
     """
     expression : NAME
+               | NAME LPAREN expression RPAREN
+               | NAME DOT NAME DOT NAME
     """
-    if p[1] == 'RandMT':
-        # If the user wants a random number, generate one.
-        # Is necessary put it in "expression" because the parser check 'rand' as a NAME
-        p[0] = np.random.rand()
+    # Receives a = ExpoRand(5); or a = ExpoRand; or ExpoRand.a.values;
+    if p[1] == 'ExpoRand' or p[1] == 'GeoRand' or p[1] == 'NormalRand' or p[1] == 'PoissonRand' or p[1] == 'UnifRand':
+        if len(p) > 5:
+            if p[5] == 'values':
+                p[0] = env_history_rand[p[3]]
+        elif len(p) > 4:
+            p[0] = ('randList', p[1], p[3])
+        else:
+            p[0] = ('rand', p[1])
     else:
         p[0] = ('var', p[1])
 
@@ -438,7 +456,7 @@ def p_error(p):
     :param p: The input that doesn't conform to our grammar.
     """
     if p is not None:
-        print("Syntax error found: ", p)
+        print(Fore.RED + f"Syntax error found: {p}" + Style.RESET_ALL)
 
 
 def p_empty(p):
@@ -451,6 +469,65 @@ def p_empty(p):
 parser = yacc.yacc()  # Build the parser
 env = {}  # Create the environment upon which we will store and retrieve variables from.
 small_env = {}  # Create the function environment upon which we will store and retrieve functions from.
+env_rand = {}
+env_history_rand = {}
+
+
+def default_seed():
+    """
+    Check if the user has set a seed value. If not, default to 1.
+    """
+    seed = env.get('SEED', 1)
+    if 'SEED' not in env:
+        print(Fore.YELLOW + f"Warning: SEED not set. Defaulting to {seed}. Replace it using "
+                            f"SEED=<int>;" + Style.RESET_ALL)
+    return seed
+
+
+def default_success():
+    """
+    Check if the user has set a success value. If not, default to 1.
+    """
+    success = env.get('SUCCESS', 0.5)
+    if success > 1 or success < 0:
+        print(Fore.RED + f"Error: SUCCESS must be between 0 and 1. Defaulting to {success}. "
+                         f"Replace it using SUCCESS=<float>;" + Style.RESET_ALL)
+        success = 0.5
+        print(Fore.YELLOW + f"Warning: The default value {success} will be used in the meantime." + Style.RESET_ALL)
+    if 'SUCCESS' not in env:
+        print(Fore.YELLOW + f"Warning: SUCCESS not set. Defaulting to {success}. Replace it using a value "
+                            f"between 0 and 1. SUCCESS=<float>;" + Style.RESET_ALL)
+    return success
+
+
+def default_mu():
+    """
+    Check if the user has set a mu value. If not, default to 5.
+    """
+    mu = env.get('MU', 5)
+    if 'MU' not in env:
+        print(Fore.YELLOW + f"Warning: MU not set. Defaulting to {mu}. Replace it using MU=<float>/<int>;" + Style.RESET_ALL)
+    return mu
+
+
+def default_sigma():
+    """
+    Check if the user has set a sigma value. If not, default to 1.
+    """
+    sigma = env.get('SIGMA', 1)
+    if 'SIGMA' not in env:
+        print(Fore.YELLOW + f"Warning: SIGMA not set. Defaulting to {sigma}. Replace it using SIGMA=<int>;" + Style.RESET_ALL)
+    return sigma
+
+
+def default_lambda():
+    """
+    Check if the user has set a lambda value. If not, default to 1.
+    """
+    lam = env.get('LAMBDA', 80)
+    if 'LAMBDA' not in env:
+        print(Fore.YELLOW + f"Warning: LAMBDA not set. Defaulting to {lam}. Replace it using LAMBDA=<float>;" + Style.RESET_ALL)
+    return lam
 
 
 def run(p):
@@ -460,7 +537,7 @@ def run(p):
     :param p: The tree generated by our parser.
     :return: The result of the tree.
     """
-    global env
+    global env, env_rand, env_history_rand
     if type(p) == tuple:
         if p[0] == '+':
             left = run(p[1])
@@ -533,7 +610,45 @@ def run(p):
         elif p[0] == 'or':
             return run(p[1]) or run(p[2])
         elif p[0] == '=':
+            # Multiple lists are used to store the values of the variables and the functions as data types, historical
+            # data and the current values.
             env[p[1]] = run(p[2])
+            env_rand[p[1]] = p[2]
+            env_history_rand.setdefault(p[1], [])  # if p[1] not in env_history_rand, set it to []
+
+        elif p[0] == 'rand':
+            seed = default_seed()
+            if p[1] == 'ExpoRand':
+                lamda = default_lambda()
+                return lcg_rand.exponential_distribution(seed, lamda)
+            elif p[1] == 'GeoRand':
+                success = default_success()
+                return lcg_rand.geometric_distribution(seed, success)
+            elif p[1] == 'NormalRand':
+                mu = default_mu()
+                sigma = default_sigma()
+                return lcg_rand.normal_distribution(seed, mu, sigma)
+            elif p[1] == 'PoissonRand':
+                lamda = default_lambda()
+                return lcg_rand.poisson_distribution(seed, lamda)
+            # BEFORE: return np.random.rand()  # Return a random number between 0 and 1
+        elif p[0] == 'randList':
+            seed = default_seed()
+            if p[1] == 'ExpoRand':
+                lamda = default_lambda()
+                return lcg_rand.exponential_distribution_list(seed, lamda, p[2])
+            elif p[1] == 'GeoRand':
+                success = default_success()
+                return lcg_rand.geometric_distribution_list(seed, success, p[2])
+            elif p[1] == 'NormalRand':
+                mu = default_mu()
+                sigma = default_sigma()
+                return lcg_rand.normal_distribution_list(seed, mu, sigma, p[2])
+            elif p[1] == 'PoissonRand':
+                lamda = default_lambda()
+                return lcg_rand.poisson_distribution_list(seed, lamda, p[2])
+            # BEFORE: return np.random.rand(p[2]).tolist()  # Return a random list of size p[2] as a python list
+
         elif p[0] == 'print':
             print(run(p[1]))
         elif p[0] == 'array_get':
@@ -544,30 +659,30 @@ def run(p):
             return alg.Model(run(p[1]), run(p[2]), run(p[3]), run(p[4]))
         elif p[0] == 'operationNum':
             # p[0] = name of the function
-            # p[1] = name of the objetc
+            # p[1] = name of the object
             # p[2] = parameters
             if p[1] not in env:
-                print(f'Error: object {p[1]} is not defined')
+                print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
                 return
             return env[p[1]].operationNum(run(p[2][0]), run(p[2][1]))
         elif p[0] == 'operationSet':
             if p[1] not in env:
-                print(f'Error: object {p[1]} is not defined')
+                print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
                 return
             return env[p[1]].operationSet(run(p[2][0]), run(p[2][1]))
         elif p[0] == 'toStreakModel':
             if p[1] not in env:
-                print(f'Error: object {p[1]} is not defined')
+                print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
                 return
             return env[p[1]].toSteakModel()
         elif p[0] == 'steakOperationSum':
             if p[1] not in env:
-                print(f'Error: object {p[1]} is not defined')
+                print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
                 return
             return env[p[1]].steakOperationSum(run(p[2][0]), run(p[2][1]), run(p[2][2]))
         elif p[0] == 'SteakOperationAvrg':
             if p[1] not in env:
-                print(f'Error: object {p[1]} is not defined')
+                print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
                 return
             return env[p[1]].SteakOperationAvrg(run(p[2][0]), run(p[2][1]), run(p[2][2]))
         elif p[0] == 'chain':
@@ -575,22 +690,27 @@ def run(p):
 
         elif p[0] == 'numberOfSteaks':
             if p[1] not in env:
-                print(f'Error: object {p[1]} is not defined')
+                print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
                 return
             return env[p[1]].numberOfSteaks()
 
         elif p[0] == 'numberOfSteaksUntilIndex':
             if p[1] not in env:
-                print(f'Error: object {p[1]} is not defined')
+                print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
                 return
             return env[p[1]].numberOfSteaksUntilIndex(p[2][0])
         elif p[0] == 'printm':
             print(p[1])
         elif p[0] == 'plot':
             if type(p[1]) == "str" and p[1] not in env:
-                print(f'Error: object {p[1]} is not defined')
+                print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
                 return
             alg.showPlot(run(p[1]), run(p[2]))
+        elif p[0] == 'plotHist':
+            if type(p[1]) == "str" and p[1] not in env:
+                print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
+                return
+            alg.show_plot_histogram(run(p[1]), run(p[2]))
         elif p[0] == 'function_declaration':
             # p2 are the arguments of the function
             # p3 are the statements of the function
@@ -601,18 +721,19 @@ def run(p):
             name = p[1]
             args = p[2]
             if name not in env:
-                print("Function not found: ", name)
+                print(Fore.YELLOW + "Warning: Function not found: ", name + Style.RESET_ALL)
                 return None
 
             function_values = env[name]
             # function_values[1] are the arguments of the function
             # function_values[2] are the statements of the function
             if function_values[0] != "function":
-                print("Not a function: ", name)
+                print(Fore.YELLOW + "Warning: Not a function:", name + Style.RESET_ALL)
                 return None
             if len(function_values[1]) != len(args):
-                print("Argument count mismatch, the function requires ", len(function_values[1]),
-                      " arguments but you supplied ", len(args))
+                print(Fore.YELLOW + f"Warning: Argument count mismatch, the function requires "
+                                    f"{len(function_values[1])} arguments but you supplied {len(args)}"
+                                    f"" + Style.RESET_ALL)
                 return None
             # Add the arguments to the new environment
             for i in range(len(args)):
@@ -632,8 +753,12 @@ def run(p):
                 run(p[2])
         elif p[0] == 'var':
             if p[1] not in env:
-                print('Undeclared variable found! ' + p[1])
+                print(Fore.YELLOW + f"Warning: Undeclared variable found! {p[1]}" + Style.RESET_ALL)
             else:
+                if type(env_rand[p[1]]) == tuple and (env_rand[p[1]][0] == 'rand' or env_rand[p[1]][0] == 'randList'):
+                    get_rand_value = run(env_rand[p[1]])
+                    env[p[1]] = get_rand_value
+                    env_history_rand[p[1]].append(get_rand_value)
                 return env[p[1]]
     else:
         return p
