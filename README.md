@@ -5,6 +5,20 @@ PScript (Probabilistic Script) is a programming language designed to facilitate 
 - Previous work that was used to build this project can be found as [SigmaScript](https://github.com/jahelsantiago/Sigmascript), a project developed by members of the current team.
 
 
+## Features
+- [x] Basic arithmetic operations
+- [x] Basic logical operations
+- [x] Basic conditional statements
+- [x] Basic loops (while)
+- [x] Basic functions
+- [x] Basic multidimensional arrays 
+- [x] Basic variables without type inference
+- [x] Basic probability distributions (Exponential, Normal, Uniform, Poisson, Geometric)
+- [x] Stochastic variables (when the variable is called, always returns different values)
+- [x] Stochastic arrays (when the array is called, always returns different values)
+- [x] Console input and output
+- [x] File input and output un txt format with PScript syntax
+
 ## How to use
 1. Clone this repository using :
    ```

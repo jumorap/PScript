@@ -494,11 +494,11 @@ def left_right(p):
 # Probabilistic distributions:
 
 
-def get_default_value(env_key, default_value, error_message=None, warning_message=None):
+def get_default_value(env_key, default_value, error_message=None, warning_message=None, condition=False):
     value = env.get(env_key, default_value)
-    if value != default_value and error_message is not None:
+    if condition:
         print(
-            Fore.RED + f"Error: {error_message}. Defaulting to {value}. Replace it using "
+            Fore.RED + f"Error: {error_message} Defaulting to {value}. Replace it using "
                        f"{env_key}=<{type(value).__name__}>;" + Style.RESET_ALL)
         value = default_value
         print(Fore.YELLOW + f"Warning: The default value {value} will be used in the meantime." + Style.RESET_ALL)
@@ -511,38 +511,41 @@ def get_default_value(env_key, default_value, error_message=None, warning_messag
 
 def default_seed():
     v_default = 1
-    return get_default_value('SEED', v_default, "SEED not set.", f"SEED not set.")
+    return get_default_value('SEED', v_default, warning_message=f"SEED not set.")
 
 
 def default_success():
     v_default = 0.5
     return get_default_value('SUCCESS', v_default, "SUCCESS must be between 0 and 1.",
-                             f"SUCCESS not set. Must be a value between 0 and 1.")
+                             f"SUCCESS not set. Must be a value between 0 and 1.",
+                             condition=(env['SUCCESS'] < 0 or env['SUCCESS'] > 1))
 
 
 def default_mu():
     v_default = 5
-    return get_default_value('MU', v_default, "MU not set.", f"MU not set.")
+    return get_default_value('MU', v_default, warning_message=f"MU not set.")
 
 
 def default_sigma():
     v_default = 1
-    return get_default_value('SIGMA', v_default, "SIGMA not set.", f"SIGMA not set.")
+    return get_default_value('SIGMA', v_default, warning_message=f"SIGMA not set.")
 
 
 def default_lambda():
     v_default = 80
-    return get_default_value('LAMBDA', v_default, "LAMBDA not set.", f"LAMBDA not set.")
+    return get_default_value('LAMBDA', v_default, warning_message=f"LAMBDA not set.")
 
 
 def default_lim_sup():
     v_default = 100
-    return get_default_value('LIM_SUP', v_default, "LIM_INF must be smaller than LIM_SUP.", f"LIM_SUP not set.")
+    return get_default_value('LIM_SUP', v_default, "LIM_INF must be smaller than LIM_SUP.", f"LIM_SUP not set.",
+                             condition=(env['LIM_INF'] > env['LIM_SUP']))
 
 
 def default_lim_inf():
     v_default = 0
-    return get_default_value('LIM_INF', v_default, "LIM_INF must be smaller than LIM_SUP.", f"LIM_INF not set.")
+    return get_default_value('LIM_INF', v_default, "LIM_INF must be smaller than LIM_SUP.", f"LIM_INF not set.",
+                             condition=(env['LIM_INF'] > env['LIM_SUP']))
 
 
 list_distributions = {
