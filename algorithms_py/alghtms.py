@@ -1,6 +1,10 @@
 # los retornos "" o -1 hacen referencia a un error, probablemente escritura error
 
 import matplotlib.pyplot as plt
+import numpy as np
+from colorama import init, Fore, Style
+
+init()
 
 
 class Model:
@@ -18,9 +22,8 @@ class Model:
         if (bloquesM == len(b)) and (tratamientosM == len(t)):
             self.M = M  # matrix
         else:
-            print(
-                "Dimensiones de M corresponden a las dimensiones de tratamientos y bloques. Se requiere: \n#columnas "
-                "de M == longitud de t \n#filas de M == longitud de b")
+            print(Fore.RED + f"Error: The dimensions of M correspond to the dimensions of treatments and blocks. Is "
+                             "required: \n#columns of M == length of t \n#rows of M == length of b" + Style.RESET_ALL)
 
         # crear simbolos, maximo 23 bloques alfabeto
         for i in range(tratamientosM):
@@ -45,7 +48,8 @@ class Model:
                         count += 1
                 return count
             else:
-                print("El bloque numero " + str(b) + " no existe, recuerde que la numeración comienza en 0")
+                print(Fore.RED + f"Error: The block number {str(b)} does not exist, remember that "
+                                 "the numbering starts at 0" + Style.RESET_ALL)
 
         # recuento de todos los datos del tratamiento t-esimo
         elif b == "." and (type(t) is int):
@@ -55,10 +59,10 @@ class Model:
                         count += 1
                 return count
             else:
-                print("El tratamiento numero " + str(t) + " no existe, recuerde que la numeración comienza en 0")
+                print(Fore.RED + f"Error: The treatment number {str(t)} does not exist, remember that "
+                                 "the numbering starts at 0" + Style.RESET_ALL)
 
     def operationSet(self, b, t):
-
         templist = []
 
         # retorna todos los elementos de modelo en un arreglo
@@ -77,7 +81,8 @@ class Model:
                         templist.append(self.M[b][i][j])
                 return templist
             else:
-                print("El bloque numero " + str(b) + " no existe, recuerde que la numeración comienza en 0")
+                print(Fore.RED + f"Error: The block number {str(b)} does not exist, remember that "
+                                 "the numbering starts at 0" + Style.RESET_ALL)
                 return templist
 
         elif b == "." and (type(t) is int):
@@ -87,14 +92,14 @@ class Model:
                         templist.append(self.M[i][t][j])
                 return templist
             else:
-                print("El tratamiento numero " + str(t) + " no existe, recuerde que la numeración comienza en 0")
+                print(Fore.RED + f"Error: The treatment number {str(t)} does not exist, remember that "
+                                 "the numbering starts at 0" + Style.RESET_ALL)
                 return templist
         else:
-            print("Argumentos Invalidos")
+            print(Fore.RED + f"Error: The arguments are invalid" + Style.RESET_ALL)
             return templist
 
     def findElementSymbol(self, element):  # retorna simbolo relacionado al tratamiento que pertenece
-
         for i in range(len(self.M)):
             for j in range(len(self.M[i])):
                 for k in range(len(self.M[i][j])):
@@ -105,7 +110,6 @@ class Model:
                         return symbol
 
     def multicotomize(self, numberList):  # multicotomiza el bloque i-esimo, retorna chain
-
         chainList = []
         str = ""
 
@@ -114,7 +118,7 @@ class Model:
             symbol = self.findElementSymbol(numberList[i])
 
             if symbol == "":
-                print("error de multicotomización")
+                print(Fore.RED + f"Error: multiclass classification not possible" + Style.RESET_ALL)
             else:
                 chainList.append(symbol)
 
@@ -124,7 +128,6 @@ class Model:
         return Chain(str)
 
     def toSteakModel(self):  # algortimo de multicomozación del modelo de 2 vias
-
         self.Z = self.M  # crea modelo de rachas Z con las dimenciones de M
         # para cada bloque del modelo
         for i in range(len(self.M)):
@@ -185,7 +188,6 @@ class SteakModel:
         return str(self.Z)
 
     def steakOperationSum(self, i, j, k):  # operaciones de SUMA sobre modelo de rachas, 5 operaciones
-
         sum = 0  # suma
 
         # numero de rachas en la posicion ijk
@@ -194,11 +196,11 @@ class SteakModel:
             if i < len(self.Z) and j < len(self.Z[i]) and k < len(self.Z[i][j]):
                 return self.Z[i][j][k]
             else:
-                print("indices agregados estan fuera de rango del modelo")
-                return (-1)
+                print(Fore.RED + f"Error: The indexes added are out of range of the model" + Style.RESET_ALL)
+                return -1
 
         # suma de todos las rachas del Modelo
-        elif (i == "." and j == "." and k == "."):
+        elif i == "." and j == "." and k == ".":
             for l in range(len(self.Z)):
                 for m in range(len(self.Z[l])):
                     for n in range(len(self.Z[l][m])):
@@ -214,8 +216,8 @@ class SteakModel:
                         sum += self.Z[i][m][n]
                 return sum
             else:
-                print("indices agregados estan fuera de rango del modelo")
-                return (-1)
+                print(Fore.RED + f"Error: The indexes added are out of range of the model" + Style.RESET_ALL)
+                return -1
 
         # Suma del tratamieto j
         elif i == "." and (type(j) is int) and k == ".":
@@ -226,8 +228,8 @@ class SteakModel:
                         sum += self.Z[l][j][n]
                 return sum
             else:
-                print("indices agregados estan fuera de rango del modelo")
-                return (-1)
+                print(Fore.RED + f"Error: The indexes added are out of range of the model" + Style.RESET_ALL)
+                return -1
 
         # Suma de la casilla ij
         elif (type(i) is int) and (type(j) is int) and k == ".":
@@ -237,11 +239,10 @@ class SteakModel:
                     sum += self.Z[i][j][n]
                 return sum
             else:
-                print("indices agregados estan fuera de rango del modelo")
-                return (-1)
+                print(Fore.RED + f"Error: The indexes added are out of range of the model" + Style.RESET_ALL)
+                return -1
 
     def SteakOperationAvrg(self, i, j, k):  # operaciones de PROMEDIO sobre modelo de rachas, 4 operaciones
-
         sum = 0  # suma
         avrg = 0  # promedio
         count = 0  # numero datos
@@ -253,7 +254,7 @@ class SteakModel:
                     for n in range(len(self.Z[l][m])):
                         sum += self.Z[l][m][n]
                         count += 1
-            avrg = (sum / (count))
+            avrg = (sum / count)
             return avrg
 
         # promedio del bloque i
@@ -264,12 +265,12 @@ class SteakModel:
                     for n in range(len(self.Z[i][m])):
                         sum += self.Z[i][m][n]
                         count += 1
-                avrg = (sum / (count))
+                avrg = (sum / count)
                 return avrg
 
             else:
-                print("indices agregados estan fuera de rango del modelo")
-                return (-1)
+                print(Fore.RED + f"Error: The indexes added are out of range of the model" + Style.RESET_ALL)
+                return -1
         # promedio del tratamiento j
         elif i == "." and (type(j) is int) and k == ".":
 
@@ -278,10 +279,10 @@ class SteakModel:
                     for n in range(len(self.Z[l][j])):
                         sum += self.Z[l][j][n]
                         count += 1
-                avrg = (sum / (count))
+                avrg = (sum / count)
                 return avrg
             else:
-                print("indices agregados estan fuera de rango del modelo")
+                print(Fore.RED + f"Error: The indexes added are out of range of the model" + Style.RESET_ALL)
                 return (-1)
 
 
@@ -292,11 +293,11 @@ class SteakModel:
                 for n in range(len(self.Z[i][j])):
                     sum += self.Z[i][j][n]
                     count += 1
-                avrg = (sum / (count))
+                avrg = (sum / count)
                 return avrg
             else:
-                print("indices agregados estan fuera de rango del modelo")
-                return (-1)
+                print(Fore.RED + f"Error: The indices are out of range of the model" + Style.RESET_ALL)
+                return -1
 
 
 modeloZ = Model(4.7, [-7.4, 1.2], [5.4, -9.2, 3],
@@ -306,7 +307,7 @@ modeloZ = Model(4.7, [-7.4, 1.2], [5.4, -9.2, 3],
 class Chain:
     def __init__(self, chain):
         if chain == "":
-            print("Cadena vacia")
+            print(Fore.RED + f"Error: Empty chain" + Style.RESET_ALL)
         else:
             self.chain = chain  # string
             self.chainArray = list(chain)  # array of strings
@@ -316,7 +317,7 @@ class Chain:
 
     def numberOfSteaks(self):
         if self.chain == "":
-            print("Cadena vacia")
+            print(Fore.RED + f"Error: Empty chain" + Style.RESET_ALL)
             return 0
         else:
             counter = 1
@@ -327,12 +328,11 @@ class Chain:
             return counter
 
     def numberOfSteaksUntilIndex(self, index):
-
         if self.chain == "":
-            print("Cadena vacia")
+            print(Fore.RED + f"Error: Empty chain" + Style.RESET_ALL)
             return 0
         elif (index < 0) or (index >= len(self.chainArray) - 1):
-            print("indice fuera de rango")
+            print(Fore.RED + f"Error: Index out of range" + Style.RESET_ALL)
             return 0
         else:
             counter = 1
@@ -346,11 +346,28 @@ class Chain:
 
 def showPlot(values, plot_name):
     if type(values) != list:
-        print("Error de creación: El primer parámetro debe ser un arreglo de flotantes.")
+        print(Fore.RED + "Error: The first parameter must be a list of floats." + Style.RESET_ALL)
 
     if type(plot_name) != str:
-        print("Error de creación: El segundo parámetro debe ser un string")
+        print(Fore.RED + "Error: The second parameter must be a name without spaces." + Style.RESET_ALL)
     plt.plot(values)
     plt.title(plot_name)
     plt.draw()
-    plt.savefig(f"results/plot/{plot_name}.png")
+    plt.savefig(f"results/plot/{plot_name}_plot.png")
+
+
+def show_plot_histogram(values, plot_name):
+    if type(values) != list:
+        print(Fore.RED + "Error: The first parameter must be a list of floats." + Style.RESET_ALL)
+
+    if type(plot_name) != str:
+        print(Fore.RED + "Error: The second parameter must be a name without spaces." + Style.RESET_ALL)
+
+    values.sort()
+    num_bins = int(np.sqrt(len(values)))
+
+    plt.hist(values, bins=num_bins)
+    plt.title(plot_name)
+    plt.draw()
+    plt.savefig(f"results/plot/{plot_name}_histogram.png")
+    plt.clf()
