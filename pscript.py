@@ -437,18 +437,8 @@ def p_expression_var(p):
                | NAME DOT NAME
     """
     # Receives a = ExpoRand(5); or a = ExpoRand;
-    if p[1] == 'ExpoRand' \
-            or p[1] == 'GeoRand' \
-            or p[1] == 'NormalRand' \
-            or p[1] == 'PoissonRand' \
-            or p[1] == 'UniformRand':
-        if len(p) > 4:
-            p[0] = ('randList', p[1], p[3])
-        else:
-            p[0] = ('rand', p[1])
-    # Receives a.values
-    elif len(p) > 2:
-        p[0] = env_history_rand[p[1]] if p[3] == 'values' else ('var', p[1])
+    if p[1] in list_distributions:
+        p[0] = ('randList', p[1], p[3]) if len(p) > 4 else ('rand', p[1])
     else:
         p[0] = ('var', p[1])
 
@@ -580,83 +570,85 @@ def run(p):
     """
     global env, env_rand, env_history_rand
     if type(p) == tuple:
-        if p[0] == '+':
+        if p[0] == '+':  # LEFT + RIGHT
             left, right = left_right(p)
             return left + right
-        elif p[0] == '-':
+        elif p[0] == '-':  # LEFT - RIGHT
             left, right = left_right(p)
             return left - right
-        elif p[0] == '*':
+        elif p[0] == '*':  # LEFT * RIGHT
             left, right = left_right(p)
             return left * right
-        elif p[0] == '/':
+        elif p[0] == '/':  # LEFT / RIGHT
             left, right = left_right(p)
             return left / right
-        elif p[0] == 'sin':
+        elif p[0] == 'sin':  # sin(FLOAT)
             return np.sin(run(p[1]))
-        elif p[0] == 'cos':
+        elif p[0] == 'cos':  # cos(FLOAT)
             return np.cos(run(p[1]))
-        elif p[0] == 'tan':
+        elif p[0] == 'tan':  # tan(FLOAT)
             return np.tan(run(p[1]))
-        elif p[0] == 'sqrt':
+        elif p[0] == 'sqrt':  # sqrt(FLOAT)
             return np.sqrt(run(p[1]))
-        elif p[0] == 'arcsin':
+        elif p[0] == 'arcsin':  # arcsin(FLOAT)
             return np.arcsin(run(p[1]))
-        elif p[0] == 'arccos':
+        elif p[0] == 'arccos':  # arccos(FLOAT)
             return np.arccos(run(p[1]))
-        elif p[0] == 'arctan':
+        elif p[0] == 'arctan':  # arctan(FLOAT)
             return np.arctan(run(p[1]))
-        elif p[0] == 'abs':
+        elif p[0] == 'abs':  # abs(FLOAT)
             return np.abs(run(p[1]))
-        elif p[0] == 'floor':
+        elif p[0] == 'floor':  # floor(FLOAT)
             return np.floor(run(p[1]))
-        elif p[0] == 'round':
+        elif p[0] == 'round':  # round(FLOAT)
             return np.round(run(p[1]))
-        elif p[0] == 'ceil':
+        elif p[0] == 'ceil':  # ceil(FLOAT)
             return np.ceil(run(p[1]))
-        elif p[0] == '^':
+        elif p[0] == '^':  # LEFT ^ RIGHT
             return run(p[1]) ** run(p[2])
-        elif p[0] == '>=':
+        elif p[0] == '>=':  # LEFT >= RIGHT
             return run(p[1]) >= run(p[2])
-        elif p[0] == '<=':
+        elif p[0] == '<=':  # LEFT <= RIGHT
             return run(p[1]) <= run(p[2])
-        elif p[0] == '>':
+        elif p[0] == '>':  # LEFT > RIGHT
             return run(p[1]) > run(p[2])
-        elif p[0] == '<':
+        elif p[0] == '<':  # LEFT < RIGHT
             return run(p[1]) < run(p[2])
-        elif p[0] == '==':
+        elif p[0] == '==':  # LEFT == RIGHT
             return run(p[1]) == run(p[2])
-        elif p[0] == 'and':
+        elif p[0] == 'and':  # LEFT and RIGHT
             return run(p[1]) and run(p[2])
-        elif p[0] == 'or':
+        elif p[0] == 'or':  # LEFT or RIGHT
             return run(p[1]) or run(p[2])
-        elif p[0] == '=':
+        elif p[0] == '=':  # VARNAME = EXPR;
             # Multiple lists are used to store the values of the variables and the functions as data types, historical
             # data and the current values.
             env[p[1]] = run(p[2])
             env_rand[p[1]] = p[2]
             env_history_rand.setdefault(p[1], [])  # if p[1] not in env_history_rand, set it to []
 
-        elif p[0] == 'rand':
+        elif p[0] == 'rand':  # VARNAME = DISTRIBUTIONRand;
             seed = default_seed()
             if p[1] in distributions:
                 distribution_func, params = distributions[p[1]]()
                 return distribution_func(seed, *params)
-        elif p[0] == 'randList':
+        elif p[0] == 'randList':  # VARNAME = DISTRIBUTIONRand(INT);
             seed = default_seed()
             if p[1] in list_distributions:
                 distribution_func, params = list_distributions[p[1]]()
                 return distribution_func(seed, *params, p[2])
 
-        elif p[0] == 'print':
+        elif p[0] == 'values':  # VARNAME = VARNAME.values();
+            return env_history_rand[p[1]]
+        elif p[0] == 'print':  # print(VARNAME);
             print(run(p[1]))
-        elif p[0] == 'array_get':
+        elif p[0] == 'array_get':  # VARNAME[INDEX];
             return env[p[1]][run(p[2])]
-        elif p[0] == 'len':
+        elif p[0] == 'len':  # len(VARNAME);
             return int(len(run(p[1])))
-        elif p[0] == 'model':
+        elif p[0] == 'model':  # VARNAME = model(VARNAME, VARNAME, VARNAME, VARNAME);
             return alg.Model(run(p[1]), run(p[2]), run(p[3]), run(p[4]))
-        elif p[0] == 'operationNum':
+        elif p[0] == 'operationNum':  # VARNAME = VARNAME.operationNum(NUMBER);
             # p[0] = name of the function
             # p[1] = name of the object
             # p[2] = parameters
@@ -664,12 +656,12 @@ def run(p):
                 print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
                 return
             return env[p[1]].operationNum(run(p[2][0]), run(p[2][1]))
-        elif p[0] == 'operationSet':
+        elif p[0] == 'operationSet':  # VARNAME = VARNAME.operationSet(NUMBER, NUMBER);
             if p[1] not in env:
                 print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
                 return
             return env[p[1]].operationSet(run(p[2][0]), run(p[2][1]))
-        elif p[0] == 'toStreakModel':
+        elif p[0] == 'toStreakModel':  # VARNAME = VARNAME.toStreakModel();
             if p[1] not in env:
                 print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
                 return
@@ -687,25 +679,25 @@ def run(p):
         elif p[0] == 'chain':
             return alg.Chain(p[1])
 
-        elif p[0] == 'numberOfSteaks':
+        elif p[0] == 'numberOfSteaks':  # VARNAME = VARNAME.numberOfSteaks();
             if p[1] not in env:
                 print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
                 return
             return env[p[1]].numberOfSteaks()
 
-        elif p[0] == 'numberOfSteaksUntilIndex':
+        elif p[0] == 'numberOfSteaksUntilIndex':  # VARNAME = VARNAME.numberOfSteaksUntilIndex(NUMBER);
             if p[1] not in env:
                 print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
                 return
             return env[p[1]].numberOfSteaksUntilIndex(p[2][0])
-        elif p[0] == 'printm':
+        elif p[0] == 'printm':  # printm(VARNAME/STRING);
             print(p[1])
-        elif p[0] == 'plot':
+        elif p[0] == 'plot':  # plot(VARNAME, GRAPH_NAME);
             if type(p[1]) == "str" and p[1] not in env:
                 print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
                 return
             alg.showPlot(run(p[1]), run(p[2]))
-        elif p[0] == 'plotHist':
+        elif p[0] == 'plotHist':  # plotHist(VARNAME, GRAPH_NAME);
             if type(p[1]) == "str" and p[1] not in env:
                 print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
                 return
@@ -738,19 +730,19 @@ def run(p):
             for i in range(len(args)):
                 env[function_values[1][i]] = env[args[i]]
             run(function_values[2])
-        elif p[0] == 'if':
+        elif p[0] == 'if':  # if (CONDITION) { STATEMENTS } else { STATEMENTS }
             if run(p[1]):
                 return run(p[2])
             else:
                 if len(p) > 3:
                     return run(p[3])
-        elif p[0] == 'block':
+        elif p[0] == 'block':  # { STATEMENTS }
             for x in p[1]:
                 run(x)
-        elif p[0] == 'while':
+        elif p[0] == 'while':  # while (CONDITION) {
             while run(p[1]):
                 run(p[2])
-        elif p[0] == 'var':
+        elif p[0] == 'var':  # VARNAME = EXPRESSION;
             if p[1] not in env:
                 print(Fore.YELLOW + f"Warning: Undeclared variable found! {p[1]}" + Style.RESET_ALL)
             else:
