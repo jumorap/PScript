@@ -545,19 +545,26 @@ def default_lim_inf():
 
 
 list_distributions = {
-    'ExpoRand': lambda: (lcg_rand.exponential_distribution_list, [default_lambda()]),
-    'GeoRand': lambda: (lcg_rand.geometric_distribution_list, [default_success()]),
-    'NormalRand': lambda: (lcg_rand.normal_distribution_list, [default_mu(), default_sigma()]),
-    'PoissonRand': lambda: (lcg_rand.poisson_distribution_list, [default_lambda()]),
-    'UniformRand': lambda: (lcg_rand.uniform_distribution_list, [default_lim_inf(), default_lim_sup()])
-}
-
-distributions = {
-    'ExpoRand': lambda: (lcg_rand.exponential_distribution, [default_lambda()]),
-    'GeoRand': lambda: (lcg_rand.geometric_distribution, [default_success()]),
-    'NormalRand': lambda: (lcg_rand.normal_distribution, [default_mu(), default_sigma()]),
-    'PoissonRand': lambda: (lcg_rand.poisson_distribution, [default_lambda()]),
-    'UniformRand': lambda: (lcg_rand.uniform_distribution, [default_lim_inf(), default_lim_sup()])
+    'ExpoRand': {
+        'list': lambda: (lcg_rand.exponential_distribution_list, [default_lambda()]),
+        'single': lambda: (lcg_rand.exponential_distribution, [default_lambda()]),
+    },
+    'GeoRand': {
+        'list': lambda: (lcg_rand.geometric_distribution_list, [default_success()]),
+        'single': lambda: (lcg_rand.geometric_distribution, [default_success()]),
+    },
+    'NormalRand': {
+        'list': lambda: (lcg_rand.normal_distribution_list, [default_mu(), default_sigma()]),
+        'single': lambda: (lcg_rand.normal_distribution, [default_mu(), default_sigma()]),
+    },
+    'PoissonRand': {
+        'list': lambda: (lcg_rand.poisson_distribution_list, [default_lambda()]),
+        'single': lambda: (lcg_rand.poisson_distribution, [default_lambda()]),
+    },
+    'UniformRand': {
+        'list': lambda: (lcg_rand.uniform_distribution_list, [default_lim_inf(), default_lim_sup()]),
+        'single': lambda: (lcg_rand.uniform_distribution, [default_lim_inf(), default_lim_sup()]),
+    },
 }
 
 
@@ -627,16 +634,17 @@ def run(p):
             env_rand[p[1]] = p[2]
             env_history_rand.setdefault(p[1], [])  # if p[1] not in env_history_rand, set it to []
 
-        elif p[0] == 'rand':  # VARNAME = DISTRIBUTIONRand;
+        elif p[0] == 'rand' or p[0] == 'randList':  # VARNAME = DISTRIBUTIONRand; or VARNAME = DISTRIBUTIONRand();
             seed = default_seed()
-            if p[1] in distributions:
-                distribution_func, params = distributions[p[1]]()
-                return distribution_func(seed, *params)
-        elif p[0] == 'randList':  # VARNAME = DISTRIBUTIONRand(INT);
-            seed = default_seed()
+            if len(p) == 2: p += (None,)  # To use the distribution functions that take 3 parameters.
+
             if p[1] in list_distributions:
-                distribution_func, params = list_distributions[p[1]]()
-                return distribution_func(seed, *params, p[2])
+                distribution_type = 'single' if p[0] == 'rand' else 'list'
+                distribution_func, distribution_params = list_distributions[p[1]][distribution_type]()
+                return distribution_func(seed, *distribution_params, p[2])
+            else:
+                print(Fore.RED + 'Distribution not found: ' + p[1] + Fore.RESET)
+                print(Fore.YELLOW + f'Available distributions: {list(list_distributions.keys())}' + Fore.RESET)
 
         elif p[0] == 'values':  # VARNAME = VARNAME.values();
             return env_history_rand[p[1]]

@@ -45,17 +45,17 @@ def lcgrand(num):
     return float(zi >> 7 | 1) / 16777216.0
 
 
-def exponential_distribution(seed, lambda_value):
+def exponential_distribution(seed, lambda_value, n=None):
     u = lcgrand(seed)
     return -math.log(u) / lambda_value
 
 
-def geometric_distribution(seed, p):
+def geometric_distribution(seed, p, n=None):
     u = lcgrand(seed)
     return math.log(1 - u) / math.log(1 - p)
 
 
-def normal_distribution(seed, mu, sigma):
+def normal_distribution(seed, mu, sigma, n=None):
     u1 = lcgrand(seed)
     u2 = lcgrand(seed + 1)
     z0 = math.sqrt(-2 * math.log(u1)) * math.cos(2 * math.pi * u2)
@@ -63,7 +63,7 @@ def normal_distribution(seed, mu, sigma):
     return x
 
 
-def poisson_distribution(seed, lambda_value):
+def poisson_distribution(seed, lambda_value, n=None):
     l = math.exp(-lambda_value)
     k = 0
     p = 1.0
@@ -76,7 +76,7 @@ def poisson_distribution(seed, lambda_value):
     return k - 1
 
 
-def uniform_distribution(seed, a, b):
+def uniform_distribution(seed, a, b, n=None):
     u = lcgrand(seed)
     x = a + (b - a) * u
     return x
