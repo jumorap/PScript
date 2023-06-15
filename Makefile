@@ -1,13 +1,13 @@
 SHELL := /bin/bash
 
 start:
-	py pscript.py
+	python pscript.py
 
 test:
-	py pscript.py scripts/t02.txt
+	python pscript.py scripts/t02.txt
 
 token:
-	py pscript.py -t
+	python pscript.py -t
 
 full:
-	py pscript.py scripts/t02.txt -t
+	python pscript.py scripts/t02.txt -t

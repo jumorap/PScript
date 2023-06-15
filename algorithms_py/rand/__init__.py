@@ -46,7 +46,7 @@ def lcgrand(num):
 
 
 def exponential_distribution(seed, lambda_value):
-    u = lcgrand(lambda_value)
+    u = lcgrand(seed)
     return -math.log(u) / lambda_value
 
 

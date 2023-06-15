@@ -510,6 +510,8 @@ def get_default_value(env_key, default_value, error_message=None, warning_messag
         print(
             Fore.YELLOW + f"Warning: {warning_message} Defaulting to {value}. Replace it using "
                           f"{env_key}=<{type(value).__name__}>;" + Style.RESET_ALL)
+
+    env[env_key] = value
     return value
 
 
