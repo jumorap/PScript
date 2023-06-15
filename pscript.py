@@ -544,6 +544,19 @@ def default_lim_inf():
                              condition=(global_lim_inf > global_lim_sup))
 
 
+def rand__rand_list(p):
+    seed = default_seed()
+    if len(p) == 2: p += (None,)  # To use the distribution functions that take 3 parameters.
+
+    if p[1] in list_distributions:
+        distribution_type = 'single' if p[0] == 'rand' else 'list'
+        distribution_func, distribution_params = list_distributions[p[1]][distribution_type]()
+        return distribution_func(seed, *distribution_params, p[2])
+    else:
+        print(Fore.RED + 'Distribution not found: ' + p[1] + Fore.RESET)
+        print(Fore.YELLOW + f'Available distributions: {list(list_distributions.keys())}' + Fore.RESET)
+
+
 list_distributions = {
     'ExpoRand': {
         'list': lambda: (lcg_rand.exponential_distribution_list, [default_lambda()]),
@@ -633,19 +646,10 @@ def run(p):
             env[p[1]] = run(p[2])
             env_rand[p[1]] = p[2]
             env_history_rand.setdefault(p[1], [])  # if p[1] not in env_history_rand, set it to []
-
-        elif p[0] == 'rand' or p[0] == 'randList':  # VARNAME = DISTRIBUTIONRand; or VARNAME = DISTRIBUTIONRand();
-            seed = default_seed()
-            if len(p) == 2: p += (None,)  # To use the distribution functions that take 3 parameters.
-
-            if p[1] in list_distributions:
-                distribution_type = 'single' if p[0] == 'rand' else 'list'
-                distribution_func, distribution_params = list_distributions[p[1]][distribution_type]()
-                return distribution_func(seed, *distribution_params, p[2])
-            else:
-                print(Fore.RED + 'Distribution not found: ' + p[1] + Fore.RESET)
-                print(Fore.YELLOW + f'Available distributions: {list(list_distributions.keys())}' + Fore.RESET)
-
+        elif p[0] == 'rand':  # VARNAME = DISTRIBUTIONRand;
+            return rand__rand_list(p)
+        elif p[0] == 'randList':  # VARNAME = DISTRIBUTIONRand();
+            return rand__rand_list(p)
         elif p[0] == 'values':  # VARNAME = VARNAME.values();
             return env_history_rand[p[1]]
         elif p[0] == 'print':  # print(VARNAME);
