@@ -1,3 +1,6 @@
+from colorama import Fore
+
+
 def execute_code(code, tokenize=False, is_a_file=False, parser=None, lexer=None):
     """
     With the user input 'code' it will execute the code line by line on console
@@ -107,6 +110,10 @@ def execute_file(file_name, tokenize=False, parser=None, lexer=None):
     :param parser: the parser to use
     :param lexer: the lexer to use
     """
+    # Check if the extension is .psc
+    if not file_name.endswith(".psc"):
+        print(Fore.RED + "Error: the file must have the extension .psc" + Fore.RESET)
+        return
     if file_name:
         with open(file_name) as f:
             code = f.read()
