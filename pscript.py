@@ -692,7 +692,7 @@ def run(p):
         elif p[0] == 'array_get':  # VARNAME[INDEX];
             return env[p[1]][run(p[2])]
         elif p[0] == 'set_array_position':  # VARNAME[INDEX] = EXPR;
-            if type(run(p[1])) == list:
+            if type(env[p[1]]) == list:
                 env[p[1]][run(p[2])] = run(p[3])
             else:
                 print(Fore.RED + f"Error: '{p[1]}' is not a list" + Style.RESET_ALL)
