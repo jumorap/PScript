@@ -469,6 +469,13 @@ def p_expression_var(p):
         p[0] = ('var', p[1])
 
 
+def p_set_array_position(p):
+    """
+    expression : NAME LBRACKET INT RBRACKET EQUALS expression
+    """
+    p[0] = ('set_array_position', p[1], p[3], p[6])
+
+
 def p_error(p):
     """
     Output to the user that there is an error in the input as it doesn't conform to our grammar.
@@ -606,6 +613,9 @@ list_distributions = {
 }
 
 
+# Analysis tree:
+
+
 def run(p):
     """
     Analysis tree:
@@ -681,6 +691,11 @@ def run(p):
             print(run(p[1]))
         elif p[0] == 'array_get':  # VARNAME[INDEX];
             return env[p[1]][run(p[2])]
+        elif p[0] == 'set_array_position':  # VARNAME[INDEX] = EXPR;
+            if type(run(p[1])) == list:
+                env[p[1]][run(p[2])] = run(p[3])
+            else:
+                print(Fore.RED + f"Error: '{p[1]}' is not a list" + Style.RESET_ALL)
         elif p[0] == 'len':  # len(VARNAME);
             return int(len(run(p[1])))
         elif p[0] == 'model':  # VARNAME = model(VARNAME, VARNAME, VARNAME, VARNAME);
@@ -790,6 +805,9 @@ def run(p):
                 return env[p[1]]
     else:
         return p
+
+
+# Execution and signal handler
 
 
 def exe(tokenize=False, file_name=None):
