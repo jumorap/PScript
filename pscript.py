@@ -520,8 +520,8 @@ def get_default_value(env_key, default_value, error_message=None, warning_messag
     value = env.get(env_key, default_value)
 
     if condition:
-        print(Fore.RED + f"Error: {error_message} Defaulting to {value}. Replace it using "
-                         f"{env_key}=<{type(value).__name__}>;" + Style.RESET_ALL)
+        print(Fore.RED + f"Error: {error_message} You used {env_key} as {value}. Defaulting to {default_value}"
+                         f". Replace it using {env_key}=<{type(default_value).__name__}>;" + Style.RESET_ALL)
         value = default_value
         print(Fore.YELLOW + f"Warning: The default value {value} will be used in the meantime." + Style.RESET_ALL)
     if env_key not in env and warning_message is not None:
