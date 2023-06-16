@@ -4,21 +4,20 @@ start:
 	python pscript.py
 
 test:
-	python pscript.py scripts/t02.txt
-	python pscript.py scripts/s001.txt
-	python pscript.py scripts/s002.txt
-	python pscript.py scripts/s003.txt
-	python pscript.py scripts/s004.txt
-	python pscript.py scripts/s005.txt
-	python pscript.py scripts/s006.txt
-	python pscript.py scripts/gen_list_rands_plot.txt
-	python pscript.py scripts/print_rands.txt
-	python pscript.py scripts/update_values.txt
-	python pscript.py scripts/default_error_manage.txt
+	python pscript.py scripts/s001.psc
+	python pscript.py scripts/s002.psc
+	python pscript.py scripts/s003.psc
+	python pscript.py scripts/s004.psc
+	python pscript.py scripts/s005.psc
+	python pscript.py scripts/s006.psc
+	python pscript.py scripts/gen_list_rands_plot.psc
+	python pscript.py scripts/print_rands.psc
+	python pscript.py scripts/default_error_manage.psc
+	python pscript.py scripts/update_values.psc
 	echo "All tests passed"
 
 token:
 	python pscript.py -t
 
 full:
-	python pscript.py scripts/t02.txt -t
+	python pscript.py scripts/s006.psc -t
