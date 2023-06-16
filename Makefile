@@ -13,6 +13,8 @@ test:
 	python pscript.py scripts/s006.txt
 	python pscript.py scripts/gen_list_rands_plot.txt
 	python pscript.py scripts/print_rands.txt
+	python pscript.py scripts/update_values.txt
+	python pscript.py scripts/default_error_manage.txt
 	echo "All tests passed"
 
 token:

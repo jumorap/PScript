@@ -516,13 +516,9 @@ def left_right(p):
 # Probabilistic distributions:
 
 
-global_lim_sup = env.get('LIM_SUP', 100)
-global_lim_inf = env.get('LIM_INF', 0)
-global_success = env.get('SUCCESS', 0.5)
-
-
 def get_default_value(env_key, default_value, error_message=None, warning_message=None, condition=False):
     value = env.get(env_key, default_value)
+
     if condition:
         print(Fore.RED + f"Error: {error_message} Defaulting to {value}. Replace it using "
                          f"{env_key}=<{type(value).__name__}>;" + Style.RESET_ALL)
@@ -534,7 +530,7 @@ def get_default_value(env_key, default_value, error_message=None, warning_messag
                           f"{env_key}=<{type(value).__name__}>;" + Style.RESET_ALL)
 
     env[env_key] = value
-    return value
+    return env[env_key]
 
 
 def default_seed():
@@ -544,9 +540,10 @@ def default_seed():
 
 def default_success():
     v_default = 0.5
+    v_success = env.get('SUCCESS', 0.5)
     return get_default_value('SUCCESS', v_default, "SUCCESS must be between 0 and 1.",
                              f"SUCCESS not set. Must be a value between 0 and 1.",
-                             condition=(global_success < 0 or global_success > 1))
+                             condition=(v_success < 0 or v_success > 1))
 
 
 def default_mu():
@@ -566,14 +563,18 @@ def default_lambda():
 
 def default_lim_sup():
     v_default = 100
+    v_lim_sup = env.get('LIM_SUP', 100)
+    v_lim_inf = env.get('LIM_INF', 0)
     return get_default_value('LIM_SUP', v_default, "LIM_INF must be smaller than LIM_SUP.", f"LIM_SUP not set.",
-                             condition=(global_lim_inf > global_lim_sup))
+                             condition=(v_lim_inf > v_lim_sup))
 
 
 def default_lim_inf():
     v_default = 0
+    v_lim_sup = env.get('LIM_SUP', 100)
+    v_lim_inf = env.get('LIM_INF', 0)
     return get_default_value('LIM_INF', v_default, "LIM_INF must be smaller than LIM_SUP.", f"LIM_INF not set.",
-                             condition=(global_lim_inf > global_lim_sup))
+                             condition=(v_lim_inf > v_lim_sup))
 
 
 def rand__rand_list(p):
