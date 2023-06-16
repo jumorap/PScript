@@ -345,6 +345,7 @@ class Chain:
 
 
 def showPlot(values, plot_name):
+    values = values.tolist()
     if type(values) != list:
         print(Fore.RED + "Error: The first parameter must be a list of floats." + Style.RESET_ALL)
 
@@ -357,6 +358,7 @@ def showPlot(values, plot_name):
 
 
 def show_plot_histogram(values, plot_name):
+    values = list(values)
     if type(values) != list:
         print(Fore.RED + "Error: The first parameter must be a list of floats." + Style.RESET_ALL)
 

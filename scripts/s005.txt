@@ -1,4 +1,3 @@
-
 a = ExpoRand;
 printm("Print 'a' when it is just a float");
 print(a);
@@ -8,4 +7,4 @@ print(a);
 printm("Print 'a' again as an array, but the values has changed without define again the object");
 print(a);
 printm("Hisyory of values that a has generated:");
-print(a.values);
+print(a.values());

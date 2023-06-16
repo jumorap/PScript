@@ -1,4 +1,4 @@
-SEED = 2;
+SEED = 1973272912;
 LIM_INF = 5;
 LIM_SUP = 100;
 LAMBDA = 80;
@@ -16,4 +16,5 @@ a = GeoRand(10000);
 plotHist(a, Distribucion_Geometrica);
 a = ExpoRand(10000);
 plotHist(a, Distribucion_Exponencial);
-
+c = NormalRand(10000) + NormalRand(10000);
+plotHist(c, Normal_plus_Normal);

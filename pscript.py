@@ -10,6 +10,9 @@ import execution
 
 init()
 
+# Reserved words
+# VARNAMES that aren't reserved words are considered to be variables.
+# VARNAMES that aren't reserved words but are used in the language are called NAMES.
 reserved = {
     'if': 'IF',
     'else': 'ELSE',
@@ -57,13 +60,13 @@ tokens = [
     'LBRACKET',
     'RBRACKET',
     'COMMA',
-    'POWER',
-    'GTE',
-    'LTE',
-    'GT',
-    'LT',
-    'NE',
-    'EQ',
+    'POWER',  # Exponentiation
+    'GTE',  # Greater than or equal to
+    'LTE',  # Less than or equal to
+    'GT',  # Greater than
+    'LT',  # Less than
+    'NE',  # Not equal to
+    'EQ',  # Equal to
     'SEMICOLON',
     'DOT',
     'STRING',
@@ -72,6 +75,7 @@ tokens = [
 tokens = tokens + list(reserved.values())
 
 # Use regular expressions to define what each token is
+# TOKEN GENERATORS
 t_GTE = r'>='
 t_LTE = r'<='
 t_GT = r'>'
@@ -95,6 +99,10 @@ t_RBRACKET = r'\]'
 t_COMMA = r'\,'
 t_SEMICOLON = r'\;'
 
+# Ply's special t_ignore variable allows us to define characters the lexer will ignore.
+# We're ignoring spaces.
+t_ignore = r' '
+
 
 # Define a rule so we can track line numbers
 def t_newline(t):
@@ -102,9 +110,10 @@ def t_newline(t):
     t.lexer.lineno += len(t.value)
 
 
-# Ply's special t_ignore variable allows us to define characters the lexer will ignore.
-# We're ignoring spaces.
-t_ignore = r' '
+# Skip the current token and output 'Illegal characters' using the special Ply t_error function.
+def t_error(t):
+    print(Fore.RED + f"Lexical error found: Illegal character '{t.value[0]}' in line {t.lineno}" + Style.RESET_ALL)
+    t.lexer.skip(1)
 
 
 # More complicated tokens, such as tokens that are more than 1 character in length
@@ -143,12 +152,6 @@ def t_STRING(t):
     return t
 
 
-# Skip the current token and output 'Illegal characters' using the special Ply t_error function.
-def t_error(t):
-    print(f"Lexical error found: Illegal character '{t.value[0]}' in line {t.lineno}")
-    t.lexer.skip(1)
-
-
 # Build the lexer
 lexer = lex.lex()
 
@@ -163,6 +166,9 @@ precedence = (
 )
 
 
+# THE SYNTAX RULES FOR THE GRAMMAR ARE DEFINED HERE
+# Grammar is a set of rules and norms that define the structure and correct usage of words, phrases,
+# and expressions in a specific language.
 def p_code(p):
     """
     code : if_expression
@@ -176,6 +182,13 @@ def p_while_statement(p):
     """
     while_statement : WHILE LPAREN expression RPAREN LBRACE block RBRACE
     """
+    # WHILE => while
+    # LPAREN => (
+    # expression => p[3] => 1 < 2
+    # RPAREN => )
+    # LBRACE => {
+    # block => p[6] => [1 + 1, 2 + 2] => Code block
+    # RBRACE => }
     p[0] = ("while", p[3], p[6])
 
 
@@ -184,6 +197,18 @@ def p_if_statement(p):
     if_expression : IF LPAREN expression RPAREN LBRACE block RBRACE
     | IF LPAREN expression RPAREN LBRACE block RBRACE ELSE LBRACE block RBRACE
     """
+    # IF => if
+    # LPAREN => (
+    # expression => p[3] => 1 < 2
+    # RPAREN => )
+    # LBRACE => {
+    # block => p[6] => [1 + 1, 2 + 2] => Code block
+    # RBRACE => }
+    # ---
+    # ELSE => else
+    # LBRACE => {
+    # block => p[10] => [1 + 1, 2 + 2] => Code block
+    # RBRACE => }
     if len(p) == 8:
         p[0] = ('if', p[3], p[6])
     else:
@@ -462,7 +487,6 @@ def p_empty(p):
 
 parser = yacc.yacc()  # Build the parser
 env = {}  # Create the environment upon which we will store and retrieve variables from.
-small_env = {}  # Create the function environment upon which we will store and retrieve functions from.
 env_rand = {}
 env_history_rand = {}
 
