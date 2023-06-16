@@ -43,6 +43,7 @@ reserved = {
     'plot': 'PLOT',
     'plotHist': 'PLOTHIST',
     'append': 'APPEND',
+    'exit': 'EXIT',
 }
 
 # Create a list to hold all the token names
@@ -484,6 +485,13 @@ def p_append_to_array(p):
     p[0] = ('append', p[1], p[5])
 
 
+def p_exit(p):
+    """
+    expression : EXIT LPAREN RPAREN
+    """
+    p[0] = ('exit', p[3])
+
+
 def p_error(p):
     """
     Output to the user that there is an error in the input as it doesn't conform to our grammar.
@@ -808,6 +816,8 @@ def run(p):
         elif p[0] == 'while':  # while (CONDITION) {
             while run(p[1]):
                 run(p[2])
+        elif p[0] == 'exit':  # exit();
+            signal_handler(signal.SIGINT, None)
         elif p[0] == 'var':  # VARNAME = EXPRESSION;
             if p[1] not in env:
                 print(Fore.YELLOW + f"Warning: Undeclared variable found! {p[1]}" + Style.RESET_ALL)
@@ -843,9 +853,8 @@ def exe(tokenize=False, file_name=None):
             execution.execute_code(code=s, tokenize=tokenize, parser=parser, lexer=lexer)  # execute code in terminal
 
 
-def signal_handler(signal, frame):
-    print(Fore.YELLOW + '\n\nYou pressed Ctrl+C!' + Style.RESET_ALL)
-    print(Fore.LIGHTGREEN_EX + 'Exiting from PScript...' + Style.RESET_ALL)
+def signal_handler(signal=None, frame=None):
+    print(Fore.LIGHTGREEN_EX + '\nExiting from PScript...' + Style.RESET_ALL)
     sys.exit(0)
 
 
