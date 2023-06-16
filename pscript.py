@@ -2,6 +2,7 @@ import ply.lex as lex
 import ply.yacc as yacc
 from colorama import init, Fore, Style
 import numpy as np
+import signal
 import sys
 
 import algorithms_py.alghtms as alg
@@ -810,6 +811,12 @@ def exe(tokenize=False, file_name=None):
             execution.execute_code(code=s, tokenize=tokenize, parser=parser, lexer=lexer)  # execute code in terminal
 
 
+def signal_handler(signal, frame):
+    print(Fore.YELLOW + '\n\nYou pressed Ctrl+C!' + Style.RESET_ALL)
+    print(Fore.LIGHTGREEN_EX + 'Exiting from PScript...' + Style.RESET_ALL)
+    sys.exit(0)
+
+
 def main():
     """
     The full execution case looks like: py pscript.py filename -t
@@ -834,4 +841,5 @@ def main():
 
 
 if __name__ == "__main__":
+    signal.signal(signal.SIGINT, signal_handler)
     main()
