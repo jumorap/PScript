@@ -42,6 +42,7 @@ reserved = {
     'printm': 'PRINTM',
     'plot': 'PLOT',
     'plotHist': 'PLOTHIST',
+    'append': 'APPEND',
 }
 
 # Create a list to hold all the token names
@@ -476,6 +477,13 @@ def p_set_array_position(p):
     p[0] = ('set_array_position', p[1], p[3], p[6])
 
 
+def p_append_to_array(p):
+    """
+    expression : NAME DOT APPEND LPAREN expression RPAREN
+    """
+    p[0] = ('append', p[1], p[5])
+
+
 def p_error(p):
     """
     Output to the user that there is an error in the input as it doesn't conform to our grammar.
@@ -694,9 +702,14 @@ def run(p):
             return env[p[1]][run(p[2])]
         elif p[0] == 'set_array_position':  # VARNAME[INDEX] = EXPR;
             if type(env[p[1]]) == list:
+                if len(env[p[1]]) <= run(p[2]):
+                    print(Fore.RED + f"Error: index {run(p[2])} out of range in'{p[1]}' " + Style.RESET_ALL)
+                    return None
                 env[p[1]][run(p[2])] = run(p[3])
             else:
                 print(Fore.RED + f"Error: '{p[1]}' is not a list" + Style.RESET_ALL)
+        elif p[0] == 'append':  # VARNAME.append(EXPR);
+            env[p[1]].append(run(p[2]))
         elif p[0] == 'len':  # len(VARNAME);
             return int(len(run(p[1])))
         elif p[0] == 'model':  # VARNAME = model(VARNAME, VARNAME, VARNAME, VARNAME);
