@@ -243,11 +243,47 @@ def p_function_parameters(p):
         p[0] = [p[1]] + p[3]
 
 
+def p_array(p):
+    """
+    expression : LBRACKET array_elements RBRACKET
+    """
+    new_array = []
+    new_array.extend(p[2])
+    p[0] = new_array
+
+
+def p_array_elements(p):
+    """
+    array_elements : array_elements COMMA expression
+                   | expression
+    """
+    if len(p) == 2:
+        # Obtiene el valor de la x si la expresión es una tupla ('var', x)
+        p[0] = [run(p[1])] if type(p[1]) == tuple else [p[1]]
+    else:
+        # Obtiene el valor de la x si la expresión es una tupla ('var', x)
+        p[0] = p[1] + [run(p[3])] if type(p[3]) == tuple else p[1] + [p[3]]
+
+
 def p_array_get(p):
     """
     expression : NAME LBRACKET expression RBRACKET
     """
     p[0] = ("array_get", p[1], p[3])
+
+
+def p_set_array_position(p):
+    """
+    expression : NAME LBRACKET expression RBRACKET EQUALS expression
+    """
+    p[0] = ('set_array_position', p[1], p[3], p[6])
+
+
+def p_append_to_array(p):
+    """
+    expression : NAME DOT APPEND LPAREN expression RPAREN
+    """
+    p[0] = ('append', p[1], p[5])
 
 
 def p_block(p):
@@ -303,28 +339,6 @@ def p_function_print(p):
     function_print : PRINT LPAREN expression RPAREN
     """
     p[0] = ('print', p[3])
-
-
-def p_array(p):
-    """
-    expression : LBRACKET array_elements RBRACKET
-    """
-    new_array = []
-    new_array.extend(p[2])
-    p[0] = new_array
-
-
-def p_array_elements(p):
-    """
-    array_elements : array_elements COMMA expression
-                   | expression
-    """
-    if len(p) == 2:
-        # Obtiene el valor de la x si la expresión es una tupla ('var', x)
-        p[0] = [run(p[1])] if type(p[1]) == tuple else [p[1]]
-    else:
-        # Obtiene el valor de la x si la expresión es una tupla ('var', x)
-        p[0] = p[1] + [run(p[3])] if type(p[3]) == tuple else p[1] + [p[3]]
 
 
 def p_len(p):
@@ -469,20 +483,6 @@ def p_expression_var(p):
         p[0] = ('randList', p[1], p[3]) if len(p) > 4 else ('rand', p[1])
     else:
         p[0] = ('var', p[1])
-
-
-def p_set_array_position(p):
-    """
-    expression : NAME LBRACKET INT RBRACKET EQUALS expression
-    """
-    p[0] = ('set_array_position', p[1], p[3], p[6])
-
-
-def p_append_to_array(p):
-    """
-    expression : NAME DOT APPEND LPAREN expression RPAREN
-    """
-    p[0] = ('append', p[1], p[5])
 
 
 def p_exit(p):
@@ -720,57 +720,13 @@ def run(p):
             env[p[1]].append(run(p[2]))
         elif p[0] == 'len':  # len(VARNAME);
             return int(len(run(p[1])))
-        elif p[0] == 'model':  # VARNAME = model(VARNAME, VARNAME, VARNAME, VARNAME);
-            return alg.Model(run(p[1]), run(p[2]), run(p[3]), run(p[4]))
-        elif p[0] == 'operationNum':  # VARNAME = VARNAME.operationNum(NUMBER);
-            # p[0] = name of the function
-            # p[1] = name of the object
-            # p[2] = parameters
-            if p[1] not in env:
-                print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
-                return
-            return env[p[1]].operationNum(run(p[2][0]), run(p[2][1]))
-        elif p[0] == 'operationSet':  # VARNAME = VARNAME.operationSet(NUMBER, NUMBER);
-            if p[1] not in env:
-                print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
-                return
-            return env[p[1]].operationSet(run(p[2][0]), run(p[2][1]))
-        elif p[0] == 'toStreakModel':  # VARNAME = VARNAME.toStreakModel();
-            if p[1] not in env:
-                print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
-                return
-            return env[p[1]].toSteakModel()
-        elif p[0] == 'steakOperationSum':
-            if p[1] not in env:
-                print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
-                return
-            return env[p[1]].steakOperationSum(run(p[2][0]), run(p[2][1]), run(p[2][2]))
-        elif p[0] == 'SteakOperationAvrg':
-            if p[1] not in env:
-                print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
-                return
-            return env[p[1]].SteakOperationAvrg(run(p[2][0]), run(p[2][1]), run(p[2][2]))
-        elif p[0] == 'chain':
-            return alg.Chain(p[1])
-
-        elif p[0] == 'numberOfSteaks':  # VARNAME = VARNAME.numberOfSteaks();
-            if p[1] not in env:
-                print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
-                return
-            return env[p[1]].numberOfSteaks()
-
-        elif p[0] == 'numberOfSteaksUntilIndex':  # VARNAME = VARNAME.numberOfSteaksUntilIndex(NUMBER);
-            if p[1] not in env:
-                print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
-                return
-            return env[p[1]].numberOfSteaksUntilIndex(p[2][0])
         elif p[0] == 'printm':  # printm(VARNAME/STRING);
             print(p[1])
         elif p[0] == 'plot':  # plot(VARNAME, GRAPH_NAME);
             if type(p[1]) == "str" and p[1] not in env:
                 print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
                 return
-            alg.showPlot(run(p[1]), run(p[2]))
+            alg.show_plot(run(p[1]), run(p[2]))
         elif p[0] == 'plotHist':  # plotHist(VARNAME, GRAPH_NAME);
             if type(p[1]) == "str" and p[1] not in env:
                 print(Fore.RED + f'Error: object {p[1]} is not defined' + Style.RESET_ALL)
