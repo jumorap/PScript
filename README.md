@@ -52,5 +52,5 @@ PScript (Probabilistic Script) is a programming language designed to facilitate 
 - The `scripts` folder contains some examples of PScript code.
 - You can run some examples of PScript using:
   ```
-  python3 pscript.py scripts/t02.psc
+  python3 pscript.py scripts/while_bucle.psc
   ```

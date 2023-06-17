@@ -6,5 +6,5 @@ printm("Print 'a' when is an array");
 print(a);
 printm("Print 'a' again as an array, but the values has changed without define again the object");
 print(a);
-printm("Hisyory of values that a has generated:");
+printm("History of values that a has generated:");
 print(a.values());
