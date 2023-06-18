@@ -4,6 +4,7 @@ start:
 	python pscript.py
 
 test:
+	python pscript.py scripts/conditionals.psc
 	python pscript.py scripts/array_plot.psc
 	python pscript.py scripts/print_exporands.psc
 	python pscript.py scripts/arrays_in_arrays.psc
