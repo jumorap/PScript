@@ -247,9 +247,14 @@ def p_function_parameters(p):
 def p_array(p):
     """
     expression : LBRACKET array_elements RBRACKET
+                | LBRACKET RBRACKET
     """
     new_array = []
-    new_array.extend(p[2])
+
+    if p[2] == ']':
+        p[0] = new_array
+    else:
+        new_array.extend(p[2])
     p[0] = new_array
 
 
