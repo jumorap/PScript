@@ -4,20 +4,19 @@ OCUPADO = 1;
 LIBRE = 0;
 
 cola = [];
-media_entre_llegadas = (1/9.0);
+media_entre_llegadas = (1/8.0);
 media_atencion = (1/7.0);
 
 tiempo_simulacion = 0;
 LAMBDA = media_entre_llegadas;
 tiempo_sig_evento_llegada = ExpoRand; 
-tiempo_sig_evento_salida = 10000000000000;
+tiempo_sig_evento_salida = 10000000000000000;
 
 total_tiempos_de_esperas = 0;
 num_clientes_atentidos = 0;
 num_clientes_requerido = 1000;
 num_eventos = 0;
-
-value = 0;
+num_eventos_con_cola = 0;
 
 
 printm(____________________);
@@ -55,6 +54,7 @@ while (num_clientes_atentidos < num_clientes_requerido) {
         tiempo_simulacion = tiempo_sig_evento_salida;
 
         if (len(cola) > 0){
+            
             tiempo_salida = cola.pop(0);
 
             total_tiempos_de_esperas = total_tiempos_de_esperas + (tiempo_simulacion - tiempo_salida);
@@ -64,13 +64,17 @@ while (num_clientes_atentidos < num_clientes_requerido) {
                 LAMBDA = media_atencion;
                 tiempo_sig_evento_salida = tiempo_simulacion + ExpoRand;
             } else {
-                tiempo_sig_evento_salida = 10000000000000;
+                tiempo_sig_evento_salida = 10000000000000000;
             };
 
         } else {
-            tiempo_sig_evento_salida = 10000000000000;
+            tiempo_sig_evento_salida = 10000000000000000;
         };
         
+    };
+    num_eventos = num_eventos + 1;
+    if (len(cola) > 0){
+        num_eventos_con_cola = num_eventos_con_cola + 1;
     };
 };
 
@@ -86,10 +90,9 @@ printm(Numero_de_clientes_atendidos);
 print(num_clientes_atentidos);
 printm(Tiempo_promedio_de_espera_minutos);
 print(tiempo_espera_promedio);
+printm(Numero_de_eventos);
+print(num_eventos);
+printm(Numero_de_eventos_con_cola);
+print(num_eventos_con_cola);
 printm(____________________);
-
-
-
-
-
 
