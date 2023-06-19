@@ -320,6 +320,13 @@ def p_printm_message(p):
     p[0] = ("printm", p[3][1])
 
 
+def p_math_expression_parenthesis(p):
+    """
+    expression : LPAREN expression RPAREN
+    """
+    p[0] = p[2]
+
+
 def p_plot(p):
     """
     function_plot : PLOT LPAREN expression COMMA NAME RPAREN
