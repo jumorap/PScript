@@ -1,13 +1,14 @@
-SEED = 10;
+SEED = 1;
 LIMITE_COLA = 100;
 OCUPADO = 1;
 LIBRE = 0;
 
 cola = [];
-media_entre_llegadas = 1/9.0;
-media_atencion = 1/7.0;
+media_entre_llegadas = (1/9.0);
+media_atencion = (1/7.0);
 
 tiempo_simulacion = 0;
+LAMBDA = media_entre_llegadas;
 tiempo_sig_evento_llegada = ExpoRand; 
 tiempo_sig_evento_salida = 10000000000000;
 
@@ -38,7 +39,6 @@ while (num_clientes_atentidos < num_clientes_requerido) {
     printm(tiempo_sig_evento_salida);
     print(tiempo_sig_evento_salida);
     print(len(cola));
-    
 
     if(tiempo_sig_evento_llegada < tiempo_sig_evento_salida){
         tiempo_simulacion = tiempo_sig_evento_llegada;
