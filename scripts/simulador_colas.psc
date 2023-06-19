@@ -3,6 +3,8 @@ LIMITE_COLA = 100;
 OCUPADO = 1;
 LIBRE = 0;
 
+estado_servidor = LIBRE;
+
 cola = [];
 media_entre_llegadas = (1/8.0);
 media_atencion = (1/7.0);
@@ -41,33 +43,42 @@ while (num_clientes_atentidos < num_clientes_requerido) {
 
     if(tiempo_sig_evento_llegada < tiempo_sig_evento_salida){
         tiempo_simulacion = tiempo_sig_evento_llegada;
-
-        if (len(cola) == 0){
-            LAMBDA = media_atencion;
-            tiempo_sig_evento_salida = tiempo_simulacion + ExpoRand;
-        };
         
-        cola.append(tiempo_simulacion);
         LAMBDA = media_entre_llegadas;
         tiempo_sig_evento_llegada = tiempo_simulacion + ExpoRand;
+        
+        if (estado_servidor == LIBRE){
+            LAMBDA = media_atencion;
+            tiempo_sig_evento_salida = tiempo_simulacion + ExpoRand;
+            estado_servidor = OCUPADO;
+        } else {
+            if (len(cola) < LIMITE_COLA){
+                cola.append(tiempo_simulacion);
+            } else {
+                printm(Se_abandona_el_cliente);
+                printm(desbordamiento_de_cola);
+                exit();
+            };
+        };
     } else {
         tiempo_simulacion = tiempo_sig_evento_salida;
+        num_clientes_atentidos = num_clientes_atentidos + 1;
 
         if (len(cola) > 0){
             
             tiempo_salida = cola.pop(0);
-
             total_tiempos_de_esperas = total_tiempos_de_esperas + (tiempo_simulacion - tiempo_salida);
-            num_clientes_atentidos = num_clientes_atentidos + 1;
 
             if (len(cola) > 0){
                 LAMBDA = media_atencion;
                 tiempo_sig_evento_salida = tiempo_simulacion + ExpoRand;
             } else {
+                estado_servidor = LIBRE;
                 tiempo_sig_evento_salida = 10000000000000000;
             };
 
         } else {
+            estado_servidor = LIBRE;
             tiempo_sig_evento_salida = 10000000000000000;
         };
         
