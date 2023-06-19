@@ -1,11 +1,10 @@
 SEED = 10;
+rango = 1000000;
 
-fun probabilidad(prob){
-    LIM_SUP = prob;
+fun probabilidad(beta, analytic) {
+    LIM_SUP = beta;
     LIM_INF = -1 * LIM_SUP;
-
     suma = 0;
-    rango = 100000;
     i = 0;
 
     while (i < rango) {
@@ -16,11 +15,25 @@ fun probabilidad(prob){
         i = i + 1;
     };
 
-    print(suma / rango);
+    result = suma / rango;
+    error = abs(result - analytic) / result;
+
+    printm(resultado_analitico);
+    print(analytic);
+    printm(resultado_simulado);
+    print(result);
+    printm(error);
+    print(error);
 };
 
-prob = 0.1;
-call probabilidad(prob);
+beta = 1;
+analytic = 1 - (sqrt(beta) / (3 * beta));
+call probabilidad(beta, analytic);
 
-prob = 5;
-call probabilidad(prob);
+beta = 5;
+analytic = 1 - (sqrt(beta) / (3 * beta));
+call probabilidad(beta, analytic);
+
+beta = 100;
+analytic = 1 - (sqrt(beta) / (3 * beta));
+call probabilidad(beta, analytic);
