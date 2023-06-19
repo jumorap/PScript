@@ -11,6 +11,10 @@ media_atencion = (1/7.0);
 
 tiempo_simulacion = 0;
 LAMBDA = media_entre_llegadas;
+
+generador_llegadas = ExpoRand;
+generador_salidas = ExpoRand;
+
 tiempo_sig_evento_llegada = ExpoRand; 
 tiempo_sig_evento_salida = 10000000000000000;
 
@@ -45,11 +49,11 @@ while (num_clientes_atentidos < num_clientes_requerido) {
         tiempo_simulacion = tiempo_sig_evento_llegada;
         
         LAMBDA = media_entre_llegadas;
-        tiempo_sig_evento_llegada = tiempo_simulacion + ExpoRand;
+        tiempo_sig_evento_llegada = tiempo_simulacion + generador_llegadas;
         
         if (estado_servidor == LIBRE){
             LAMBDA = media_atencion;
-            tiempo_sig_evento_salida = tiempo_simulacion + ExpoRand;
+            tiempo_sig_evento_salida = tiempo_simulacion + generador_salidas;
             estado_servidor = OCUPADO;
         } else {
             if (len(cola) < LIMITE_COLA){
@@ -71,7 +75,7 @@ while (num_clientes_atentidos < num_clientes_requerido) {
 
             if (len(cola) > 0){
                 LAMBDA = media_atencion;
-                tiempo_sig_evento_salida = tiempo_simulacion + ExpoRand;
+                tiempo_sig_evento_salida = tiempo_simulacion + generador_salidas;
             } else {
                 estado_servidor = LIBRE;
                 tiempo_sig_evento_salida = 10000000000000000;
@@ -105,5 +109,7 @@ printm(Numero_de_eventos);
 print(num_eventos);
 printm(Numero_de_eventos_con_cola);
 print(num_eventos_con_cola);
+plotHist(generador_llegadas.values(), tiempo_entre_llegadas);
+plotHist(generador_salidas.values(), tiempo_de_atencion);
 printm(____________________);
 
