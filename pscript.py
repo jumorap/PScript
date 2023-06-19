@@ -43,6 +43,7 @@ reserved = {
     'plot': 'PLOT',
     'plotHist': 'PLOTHIST',
     'append': 'APPEND',
+    'pop': 'POP',
     'exit': 'EXIT',
 }
 
@@ -284,6 +285,13 @@ def p_append_to_array(p):
     expression : NAME DOT APPEND LPAREN expression RPAREN
     """
     p[0] = ('append', p[1], p[5])
+
+
+def p_pop_from_array(p):
+    """
+    expression : NAME DOT POP LPAREN RPAREN
+    """
+    p[0] = ('pop', p[1])
 
 
 def p_block(p):
@@ -725,6 +733,11 @@ def run(p):
                 print(Fore.RED + f"Error: '{p[1]}' is not a list" + Style.RESET_ALL)
         elif p[0] == 'append':  # VARNAME.append(EXPR);
             env[p[1]].append(run(p[2]))
+        elif p[0] == 'pop':  # VARNAME.pop();
+            if len(env[p[1]]) == 0:
+                print(Fore.RED + f"Error: '{p[1]}' is empty" + Style.RESET_ALL)
+                return None
+            return env[p[1]].pop()
         elif p[0] == 'len':  # len(VARNAME);
             return int(len(run(p[1])))
         elif p[0] == 'printm':  # printm(VARNAME/STRING);
