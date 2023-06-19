@@ -295,8 +295,12 @@ def p_append_to_array(p):
 def p_pop_from_array(p):
     """
     expression : NAME DOT POP LPAREN RPAREN
+               | NAME DOT POP LPAREN expression RPAREN
     """
-    p[0] = ('pop', p[1])
+    if len(p) == 7:
+        p[0] = ('pop', p[1], p[5])
+    else:
+        p[0] = ('pop', p[1])
 
 
 def p_block(p):
@@ -738,11 +742,13 @@ def run(p):
                 print(Fore.RED + f"Error: '{p[1]}' is not a list" + Style.RESET_ALL)
         elif p[0] == 'append':  # VARNAME.append(EXPR);
             env[p[1]].append(run(p[2]))
-        elif p[0] == 'pop':  # VARNAME.pop();
+        elif p[0] == 'pop':  # VARNAME.pop(); or VARNAME.pop(INDEX);
             if len(env[p[1]]) == 0:
                 print(Fore.RED + f"Error: '{p[1]}' is empty" + Style.RESET_ALL)
                 return None
-            return env[p[1]].pop()
+            if len(p) < 3:
+                return env[p[1]].pop()
+            return env[p[1]].pop(run(p[2]))
         elif p[0] == 'len':  # len(VARNAME);
             return int(len(run(p[1])))
         elif p[0] == 'printm':  # printm(VARNAME/STRING);
