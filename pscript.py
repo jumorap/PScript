@@ -619,7 +619,7 @@ def default_lim_inf():
 
 def rand__rand_list(p):
     seed = default_seed()
-    if len(p) == 2: p += (None,)  # To use the distribution functions that take 3 parameters.
+    if len(p) == 2: p += (None, )  # To use the distribution functions that take 3 parameters.
 
     if p[1] in list_distributions:
         distribution_type = 'single' if p[0] == 'rand' else 'list'
@@ -631,6 +631,10 @@ def rand__rand_list(p):
 
 
 list_distributions = {
+    'LCGRand': {
+        'list': lambda: (lcg_rand.lcgrand_list, [None]),
+        'single': lambda: (lcg_rand.lcgrand_gen, [None]),
+    },
     'ExpoRand': {
         'list': lambda: (lcg_rand.exponential_distribution_list, [default_lambda()]),
         'single': lambda: (lcg_rand.exponential_distribution, [default_lambda()]),

@@ -45,6 +45,10 @@ def lcgrand(num):
     return float(zi >> 7 | 1) / 16777216.0
 
 
+def lcgrand_gen(seed, seed_1=None, n=None):
+    return lcgrand(seed)
+
+
 def exponential_distribution(seed, lambda_value, n=None):
     u = lcgrand(seed)
     return -math.log(u) / lambda_value
@@ -82,8 +86,12 @@ def uniform_distribution(seed, a, b, n=None):
     return x
 
 
-def exponential_distribution_list(num, lamda, n):
-    return [exponential_distribution(num, lamda) for _ in range(n)]
+def lcgrand_list(seed, num, n):
+    return [lcgrand(seed) for _ in range(n)]
+
+
+def exponential_distribution_list(seed, lamda, n):
+    return [exponential_distribution(seed, lamda) for _ in range(n)]
 
 
 def geometric_distribution_list(seed, num, n):
