@@ -69,7 +69,7 @@ def execute_code(code, tokenize=False, is_a_file=False, parser=None, lexer=None)
             if not is_a_file:
                 while open_braces != close_braces:
                     try:
-                        input_line = input("PScript >>... ")
+                        input_line = input(Fore.BLUE + "PScript >>... " + Fore.RESET)
                         input_lines.append(input_line)
                         block_code += input_line.strip()
                         open_braces += input_line.count('{')

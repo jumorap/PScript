@@ -838,7 +838,7 @@ def exe(tokenize=False, file_name=None):
     else:
         while True:
             try:
-                s = input('PScript >> ')
+                s = input(Fore.BLUE + "PScript >> " + Fore.RESET)
             except EOFError:
                 break
             execution.execute_code(code=s, tokenize=tokenize, parser=parser, lexer=lexer)  # execute code in terminal
